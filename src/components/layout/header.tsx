@@ -57,7 +57,7 @@ function HeaderComponent({ activeTab, onTabChange }: HeaderProps) {
         </div>
       )}
 
-      <nav className="flex items-center" role="navigation" aria-label="Main navigation">
+      <nav className="flex items-center gap-2" role="navigation" aria-label="Main navigation">
         {tabs.map((tab) => (
           <button
             key={tab.id}
