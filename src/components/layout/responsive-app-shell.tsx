@@ -91,7 +91,7 @@ function ResponsiveAppShellComponent() {
       </div>
       
       {/* Main Content */}
-      <main className="flex-1 grid grid-cols-1 sm:grid-cols-[1fr_1fr] gap-2 sm:gap-4 p-2 sm:p-4 overflow-hidden">
+      <main className="flex-1 grid grid-cols-1 sm:grid-cols-[1fr_1fr] gap-4 sm:gap-6 p-4 sm:p-6 overflow-hidden">
         {/* Mobile: Preview on top (order-1), Editor on bottom (order-2) */}
         {/* Desktop: Preview on left (order-1), Editor on right (order-2) */}
         <div className="order-1 h-full overflow-hidden sm:overflow-y-auto min-h-0">

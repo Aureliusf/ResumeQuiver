@@ -28,7 +28,7 @@ function HeaderComponent({ activeTab, onTabChange }: HeaderProps) {
 
   return (
     <header 
-      className="bg-df-surface border-b border-df-border h-16 flex items-center justify-between px-6"
+      className="bg-df-surface border-b border-df-border h-16 flex items-center justify-between px-8"
       role="banner"
     >
       <div className="flex items-center">

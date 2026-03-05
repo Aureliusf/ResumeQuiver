@@ -282,8 +282,8 @@ export const BulletManager = memo(function BulletManager() {
       </button>
 
       {isExpanded && (
-        <div id="bullet-library-content" className="h-96 border-t border-df-border overflow-y-auto px-6 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div id="bullet-library-content" className="h-96 border-t border-df-border overflow-y-auto px-8 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {resume?.experience.map((exp) => (
               <SectionCard
                 key={exp.id}
