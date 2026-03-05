@@ -42,8 +42,8 @@ export function AIPanel() {
   ];
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
+    <div className="h-full flex flex-col pt-2">
+      <div className="flex items-center justify-between mb-6">
         <h2 className="font-space font-semibold text-df-text flex items-center gap-2">
           <Wand2 className="w-5 h-5 text-df-accent-red" />
           AI Copywriting
@@ -64,7 +64,7 @@ export function AIPanel() {
       </div>
 
       {/* Configuration Summary */}
-      <div className="bg-df-elevated border border-df-border p-3 mb-4">
+      <div className="bg-df-elevated border border-df-border p-4 mb-6">
         <div className="flex items-center justify-between">
           <span className="text-xs text-df-text-secondary">Model</span>
           <span className="text-xs text-df-text font-mono">
@@ -86,7 +86,7 @@ export function AIPanel() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-df-border mb-4">
+      <div className="flex border-b border-df-border mb-6">
         {tabs.map((tab) => (
           <button
             key={tab.id}

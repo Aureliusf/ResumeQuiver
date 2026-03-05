@@ -31,7 +31,7 @@ function HeaderComponent({ activeTab, onTabChange }: HeaderProps) {
       className="bg-df-surface border-b border-df-border h-16 flex items-center justify-between px-8"
       role="banner"
     >
-      <div className="flex items-center">
+      <div className="flex items-center pl-4">
         <h1 className="font-bebas text-2xl text-df-text tracking-wider">
           YAML Resume Builder
         </h1>
@@ -62,7 +62,7 @@ function HeaderComponent({ activeTab, onTabChange }: HeaderProps) {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`px-4 py-4 text-sm font-space transition-colors border-b-2 focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2 ${
+            className={`px-6 py-4 text-sm font-space transition-colors border-b-2 focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2 ${
               activeTab === tab.id
                 ? 'text-df-text border-df-accent-red'
                 : 'text-df-text-secondary border-transparent hover:text-df-text hover:border-df-border'

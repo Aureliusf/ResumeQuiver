@@ -62,8 +62,8 @@ function ResumesPanelComponent() {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
+    <div className="h-full flex flex-col pt-2">
+      <div className="flex items-center justify-between mb-6">
         <h2 className="font-space font-semibold text-df-text">My Resumes</h2>
         <button
           onClick={handleCreateNew}

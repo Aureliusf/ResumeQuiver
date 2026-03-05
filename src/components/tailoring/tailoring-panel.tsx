@@ -79,8 +79,8 @@ export function TailoringPanel() {
   const hasResults = results.length > 0;
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
+    <div className="h-full flex flex-col pt-2">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-df-accent-cyan" />
           <h2 className="font-space font-semibold text-df-text">Job Tailoring</h2>
