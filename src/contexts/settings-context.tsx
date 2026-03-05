@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import type { ThemeId } from '@/lib/themes';
 
 const SETTINGS_KEY = 'resume-builder-settings';
 
@@ -6,12 +7,14 @@ interface Settings {
   apiKey: string;
   baseUrl: string;
   model: string;
+  theme: ThemeId;
 }
 
 interface SettingsContextState {
   apiKey: string;
   baseUrl: string;
   model: string;
+  theme: ThemeId;
 }
 
 interface SettingsContextActions {
@@ -27,17 +30,20 @@ const defaultSettings: Settings = {
   apiKey: '',
   baseUrl: 'https://api.openai.com/v1',
   model: 'gpt-4',
+  theme: 'direct-flash',
 };
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [apiKey, setApiKey] = useState<string>('');
   const [baseUrl, setBaseUrl] = useState<string>('');
   const [model, setModel] = useState<string>('');
+  const [theme, setTheme] = useState<ThemeId>(defaultSettings.theme);
 
   const updateSettings = useCallback((settings: Partial<Settings>) => {
     if (settings.apiKey !== undefined) setApiKey(settings.apiKey);
     if (settings.baseUrl !== undefined) setBaseUrl(settings.baseUrl);
     if (settings.model !== undefined) setModel(settings.model);
+    if (settings.theme !== undefined) setTheme(settings.theme);
 
     try {
       const currentSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
@@ -56,16 +62,19 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         setApiKey(parsed.apiKey || defaultSettings.apiKey);
         setBaseUrl(parsed.baseUrl || defaultSettings.baseUrl);
         setModel(parsed.model || defaultSettings.model);
+        setTheme(parsed.theme || defaultSettings.theme);
       } else {
         setApiKey(defaultSettings.apiKey);
         setBaseUrl(defaultSettings.baseUrl);
         setModel(defaultSettings.model);
+        setTheme(defaultSettings.theme);
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
       setApiKey(defaultSettings.apiKey);
       setBaseUrl(defaultSettings.baseUrl);
       setModel(defaultSettings.model);
+      setTheme(defaultSettings.theme);
     }
   }, []);
 
@@ -78,10 +87,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       apiKey,
       baseUrl,
       model,
+      theme,
       updateSettings,
       loadSettings,
     }),
-    [apiKey, baseUrl, model, updateSettings, loadSettings]
+    [apiKey, baseUrl, model, theme, updateSettings, loadSettings]
   );
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;

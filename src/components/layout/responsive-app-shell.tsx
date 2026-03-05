@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useEffect } from 'react';
 import { Library, HelpCircle } from 'lucide-react';
 import { Header } from './header';
 import { LeftPanel } from './left-panel';
@@ -7,9 +7,12 @@ import { BulletManager } from '@/components/bullets/bullet-manager';
 import { MobileBulletModal } from './mobile-bullet-modal';
 import { MobileNav } from './mobile-nav';
 import { KeyboardShortcutsModal } from '@/components/help/keyboard-shortcuts-modal';
+import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { useResume } from '@/contexts/resume-context';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { useSettings } from '@/contexts/settings-context';
 import { showSuccessToast } from '@/lib/toast';
+import { themes, applyTheme } from '@/lib/themes';
 
 type TabId = 'editor' | 'ai' | 'tailoring' | 'resumes';
 
@@ -19,6 +22,15 @@ function ResponsiveAppShellComponent() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   
   const { saveResume, createNewResume } = useResume();
+  const { theme: currentTheme } = useSettings();
+
+  // Apply theme on mount and when theme changes
+  useEffect(() => {
+    const theme = themes.find((t) => t.id === currentTheme);
+    if (theme) {
+      applyTheme(theme);
+    }
+  }, [currentTheme]);
 
   // Keyboard shortcut handlers
   const handleSave = useCallback(() => {
@@ -118,6 +130,9 @@ function ResponsiveAppShellComponent() {
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
       />
+
+      {/* Theme Switcher */}
+      <ThemeSwitcher />
     </div>
   );
 }

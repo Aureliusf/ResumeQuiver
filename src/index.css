@@ -6,7 +6,7 @@
 /* Resume Preview Styles */
 @import './styles/resume.css';
 
-/* CSS Variables - Direct Flash Theme */
+/* CSS Variables - Direct Flash Theme (default) */
 :root {
   --df-primary: #0A0A0A;
   --df-surface: #1A1A1A;
@@ -15,6 +15,10 @@
   --df-text-secondary: #888888;
   --df-accent-red: #FF3366;
   --df-accent-cyan: #00FFFF;
+  --df-accent-purple: #9933FF;
+  --df-accent-green: #00FF88;
+  --df-accent-yellow: #FFFF00;
+  --df-accent-amber: #FFAA00;
   --df-border: #333333;
 }
 

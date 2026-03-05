@@ -7,14 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        'df-primary': '#0A0A0A',
-        'df-surface': '#1A1A1A',
-        'df-elevated': '#252525',
-        'df-text': '#FFFFFF',
-        'df-text-secondary': '#888888',
-        'df-accent-red': '#FF3366',
-        'df-accent-cyan': '#00FFFF',
-        'df-border': '#333333',
+        'df-primary': 'var(--df-primary)',
+        'df-surface': 'var(--df-surface)',
+        'df-elevated': 'var(--df-elevated)',
+        'df-text': 'var(--df-text)',
+        'df-text-secondary': 'var(--df-text-secondary)',
+        'df-accent-red': 'var(--df-accent-red)',
+        'df-accent-cyan': 'var(--df-accent-cyan)',
+        'df-accent-purple': 'var(--df-accent-purple)',
+        'df-accent-green': 'var(--df-accent-green)',
+        'df-accent-yellow': 'var(--df-accent-yellow)',
+        'df-accent-amber': 'var(--df-accent-amber)',
+        'df-border': 'var(--df-border)',
       },
       fontFamily: {
         'bebas': ['"Bebas Neue"', 'sans-serif'],
