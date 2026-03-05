@@ -12,7 +12,7 @@ interface RightPanelProps {
 export function RightPanel({ activeTab }: RightPanelProps) {
   return (
     <div className="bg-df-surface border border-df-border h-full overflow-y-auto">
-      <div className="p-8">
+      <div className="p-10">
         {activeTab === 'editor' && <EditorPanel />}
         {activeTab === 'ai' && <AIPanel />}
         {activeTab === 'tailoring' && <TailoringPanel />}

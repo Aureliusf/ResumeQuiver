@@ -55,7 +55,7 @@ function EditorPanelComponent() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-df-border bg-df-surface">
+      <div className="flex items-center justify-between px-8 py-5 border-b border-df-border bg-df-surface">
         <div className="flex items-center gap-3">
           <FileText className="w-4 h-4 text-df-accent-red" />
           <h2 className="font-space font-semibold text-df-text">YAML Editor</h2>
