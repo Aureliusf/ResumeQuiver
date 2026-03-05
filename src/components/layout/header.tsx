@@ -11,11 +11,11 @@ interface HeaderProps {
   onTabChange: (tab: TabId) => void;
 }
 
-const tabs: { id: TabId; label: string; shortcut: string }[] = [
-  { id: 'editor', label: 'Editor', shortcut: 'Ctrl/Cmd + 1' },
-  { id: 'ai', label: 'AI Copywriting', shortcut: 'Ctrl/Cmd + 2' },
-  { id: 'tailoring', label: 'Tailoring', shortcut: 'Ctrl/Cmd + 3' },
-  { id: 'resumes', label: 'My Resumes', shortcut: 'Ctrl/Cmd + 4' },
+const tabs: { id: TabId; label: string; shortcut: string; color: string }[] = [
+  { id: 'editor', label: 'Editor', shortcut: 'Ctrl/Cmd + 1', color: 'df-accent-cyan' },
+  { id: 'ai', label: 'AI Copywriting', shortcut: 'Ctrl/Cmd + 2', color: 'df-accent-purple' },
+  { id: 'tailoring', label: 'Tailoring', shortcut: 'Ctrl/Cmd + 3', color: 'df-accent-green' },
+  { id: 'resumes', label: 'My Resumes', shortcut: 'Ctrl/Cmd + 4', color: 'df-accent-amber' },
 ];
 
 function HeaderComponent({ activeTab, onTabChange }: HeaderProps) {
@@ -64,13 +64,15 @@ function HeaderComponent({ activeTab, onTabChange }: HeaderProps) {
             onClick={() => onTabChange(tab.id)}
             className={`px-8 py-4 text-sm font-space transition-colors border-b-2 focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2 ${
               activeTab === tab.id
-                ? 'text-df-text border-df-accent-red'
+                ? `text-df-text border-${tab.color}`
                 : 'text-df-text-secondary border-transparent hover:text-df-text hover:border-df-border'
             }`}
             aria-current={activeTab === tab.id ? 'page' : undefined}
             title={`${tab.label} (${getShortcutHint(tab.shortcut)})`}
           >
-            {tab.label}
+            <span className={activeTab === tab.id ? `text-${tab.color}` : ''}>
+              {tab.label}
+            </span>
           </button>
         ))}
       </nav>

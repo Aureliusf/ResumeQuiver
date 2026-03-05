@@ -26,18 +26,21 @@ export function AIPanel() {
       label: 'Rewrite',
       icon: <Wand2 className="w-4 h-4" />,
       component: <RewriteBullet />,
+      color: 'df-accent-red',
     },
     {
       id: 'generate',
       label: 'Generate',
       icon: <Sparkles className="w-4 h-4" />,
       component: <GenerateBullets />,
+      color: 'df-accent-purple',
     },
     {
       id: 'improve',
       label: 'Summary',
       icon: <FileText className="w-4 h-4" />,
       component: <ImproveSummary />,
+      color: 'df-accent-cyan',
     },
   ];
 
@@ -95,12 +98,14 @@ export function AIPanel() {
               flex-1 py-3 px-2 flex items-center justify-center gap-2 font-space font-medium text-sm
               transition-colors duration-200 border-b-2
               ${activeTab === tab.id
-                ? 'text-df-accent-red border-df-accent-red'
+                ? `text-${tab.color} border-${tab.color}`
                 : 'text-df-text-secondary border-transparent hover:text-df-text hover:border-df-border'
               }
             `}
           >
-            {tab.icon}
+            <span className={activeTab === tab.id ? `text-${tab.color}` : ''}>
+              {tab.icon}
+            </span>
             {tab.label}
           </button>
         ))}

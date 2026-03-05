@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import type { Bullet } from '@/types/resume';
+import { getTagBgColorClass, getTagTextColorClass, getTagBorderColorClass } from '@/lib/tag-colors';
 
 interface BulletCheckboxProps {
   bullet: Bullet;
@@ -39,7 +40,7 @@ export function BulletCheckbox({ bullet, isSelected, onToggle }: BulletCheckboxP
             {bullet.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center px-2 py-0.5 bg-df-primary text-xs text-df-text-secondary rounded"
+                className={`inline-flex items-center px-2 py-0.5 text-xs rounded border ${getTagBgColorClass(tag)} ${getTagTextColorClass(tag)} ${getTagBorderColorClass(tag)}`}
               >
                 {tag}
               </span>

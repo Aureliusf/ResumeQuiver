@@ -143,10 +143,10 @@ function parseMatchResults(response: string, originalBullets: BulletToScore[]): 
 
 export function getScoreColor(score: number): { bg: string; text: string } {
   if (score >= 80) {
-    return { bg: 'bg-green-500/20', text: 'text-green-400' };
+    return { bg: 'bg-df-accent-green/20', text: 'text-df-accent-green' };
   } else if (score >= 60) {
-    return { bg: 'bg-yellow-500/20', text: 'text-yellow-400' };
+    return { bg: 'bg-df-accent-yellow/20', text: 'text-df-accent-yellow' };
   } else {
-    return { bg: 'bg-red-500/20', text: 'text-red-400' };
+    return { bg: 'bg-df-accent-red/20', text: 'text-df-accent-red' };
   }
 }
