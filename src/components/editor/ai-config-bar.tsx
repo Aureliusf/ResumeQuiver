@@ -26,10 +26,12 @@ export function AIConfigBar() {
     <div className="border-b border-df-border bg-df-surface">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-4 py-3 flex items-center justify-between hover:bg-df-elevated transition-colors"
+        className="w-full px-4 py-3 flex items-center justify-between hover:bg-df-elevated transition-colors focus-visible:ring-2 focus-visible:ring-df-accent-cyan focus-visible:outline-none"
+        aria-expanded={isExpanded}
+        aria-controls="ai-config-content"
       >
         <div className="flex items-center gap-3">
-          <Bot className="w-4 h-4 text-df-accent-red" />
+          <Bot className="w-4 h-4 text-df-accent-red" aria-hidden="true" />
           <span className="font-space font-medium text-df-text text-sm">
             AI Configuration
           </span>
@@ -51,55 +53,61 @@ export function AIConfigBar() {
       </button>
 
       {isExpanded && (
-        <div className="px-4 pb-4 space-y-3 border-t border-df-border">
+        <div id="ai-config-content" className="px-4 pb-4 space-y-3 border-t border-df-border">
           <div className="pt-3 space-y-3">
             <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-xs text-df-text-secondary font-medium">
-                <Key className="w-3 h-3" />
+                <Key className="w-3 h-3" aria-hidden="true" />
                 API Key
               </label>
               <input
                 type="password"
                 value={formState.apiKey}
                 onChange={(e) => setFormState({ ...formState, apiKey: e.target.value })}
-                placeholder="sk-..."
-                className="w-full px-3 py-2 bg-df-primary border border-df-border text-df-text text-sm placeholder:text-df-text-secondary/50 focus:border-df-accent-cyan focus:outline-none"
+                placeholder="sk-…"
+                spellCheck={false}
+                autoComplete="off"
+                className="w-full px-3 py-2 bg-df-primary border border-df-border text-df-text text-sm placeholder:text-df-text-secondary/50 focus:border-df-accent-cyan focus:outline-none focus-visible:ring-2 focus-visible:ring-df-accent-cyan focus-visible:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-xs text-df-text-secondary font-medium">
-                <Globe className="w-3 h-3" />
+                <Globe className="w-3 h-3" aria-hidden="true" />
                 Base URL
               </label>
               <input
-                type="text"
+                type="url"
                 value={formState.baseUrl}
                 onChange={(e) => setFormState({ ...formState, baseUrl: e.target.value })}
-                placeholder="https://api.openai.com/v1"
-                className="w-full px-3 py-2 bg-df-primary border border-df-border text-df-text text-sm placeholder:text-df-text-secondary/50 focus:border-df-accent-cyan focus:outline-none"
+                placeholder="https://api.openai.com/v1…"
+                spellCheck={false}
+                autoComplete="off"
+                className="w-full px-3 py-2 bg-df-primary border border-df-border text-df-text text-sm placeholder:text-df-text-secondary/50 focus:border-df-accent-cyan focus:outline-none focus-visible:ring-2 focus-visible:ring-df-accent-cyan focus-visible:outline-none"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-xs text-df-text-secondary font-medium">
-                <Bot className="w-3 h-3" />
+                <Bot className="w-3 h-3" aria-hidden="true" />
                 Model
               </label>
               <input
                 type="text"
                 value={formState.model}
                 onChange={(e) => setFormState({ ...formState, model: e.target.value })}
-                placeholder="gpt-4"
-                className="w-full px-3 py-2 bg-df-primary border border-df-border text-df-text text-sm placeholder:text-df-text-secondary/50 focus:border-df-accent-cyan focus:outline-none"
+                placeholder="gpt-4…"
+                spellCheck={false}
+                autoComplete="off"
+                className="w-full px-3 py-2 bg-df-primary border border-df-border text-df-text text-sm placeholder:text-df-text-secondary/50 focus:border-df-accent-cyan focus:outline-none focus-visible:ring-2 focus-visible:ring-df-accent-cyan focus-visible:outline-none"
               />
             </div>
 
             <button
               onClick={handleSave}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-df-accent-red text-white text-sm font-medium hover:bg-df-accent-red/90 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-df-accent-red text-white text-sm font-medium hover:bg-df-accent-red/90 transition-colors focus-visible:ring-2 focus-visible:ring-df-accent-red focus-visible:outline-none"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-4 h-4" aria-hidden="true" />
               Save Settings
             </button>
           </div>

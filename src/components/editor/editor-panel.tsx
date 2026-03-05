@@ -57,8 +57,7 @@ function EditorPanelComponent() {
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-5 border-b border-df-border bg-df-surface">
         <div className="flex items-center gap-3">
-          <FileText className="w-4 h-4 text-df-accent-red" />
-          <h2 className="font-space font-semibold text-df-text">YAML Editor</h2>
+          <FileText className="w-4 h-4 text-df-accent-red" aria-hidden="true" />
         </div>
         
         <div className="flex items-center gap-3">
@@ -100,7 +99,9 @@ function EditorPanelComponent() {
       )}
 
       {/* AI Config Bar */}
-      <AIConfigBar />
+      <div className="mb-6">
+        <AIConfigBar />
+      </div>
 
       {/* YAML Editor */}
       <div className="flex-1 min-h-0">
