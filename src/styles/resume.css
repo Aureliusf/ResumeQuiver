@@ -1,0 +1,204 @@
+/**
+ * Resume Preview Styles - Jake's Resume Template
+ * Professional paper styling with proper print support
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* Resume Paper Container */
+.resume-paper {
+  background: white;
+  color: black;
+  font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  font-size: 10.5pt;
+  line-height: 1.4;
+  max-width: 8.5in;
+  margin: 0 auto;
+  padding: 0.5in;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Resume Header */
+.resume-header {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.resume-name {
+  font-size: 18pt;
+  font-weight: 700;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3em;
+}
+
+.resume-contact {
+  font-size: 9pt;
+  font-style: italic;
+  color: #333;
+}
+
+/* Section Headers */
+.resume-section {
+  margin-top: 1em;
+  margin-bottom: 0.8em;
+}
+
+.resume-section-title {
+  font-size: 10pt;
+  font-weight: 700;
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid black;
+  padding-bottom: 0.2em;
+  margin-bottom: 0.5em;
+}
+
+/* Two-column layout for aligned items */
+.resume-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.resume-row-left {
+  flex: 1;
+}
+
+.resume-row-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Education Section */
+.resume-education-entry {
+  margin-bottom: 0.6em;
+}
+
+.resume-school {
+  font-weight: 700;
+}
+
+.resume-location {
+  font-weight: 400;
+}
+
+.resume-degree {
+  font-style: italic;
+}
+
+.resume-dates {
+  font-style: italic;
+  font-size: 9.5pt;
+}
+
+/* Experience Section */
+.resume-experience-entry {
+  margin-bottom: 0.8em;
+}
+
+.resume-role {
+  font-weight: 700;
+}
+
+.resume-company {
+  font-style: italic;
+}
+
+.resume-bullets {
+  margin-top: 0.3em;
+  margin-left: 1.2em;
+  list-style-type: disc;
+}
+
+.resume-bullets li {
+  margin-bottom: 0.15em;
+  font-size: 10pt;
+}
+
+/* Projects Section */
+.resume-project-entry {
+  margin-bottom: 0.6em;
+}
+
+.resume-project-name {
+  font-weight: 700;
+  font-style: italic;
+}
+
+.resume-project-tech {
+  font-weight: 400;
+}
+
+/* Skills Section */
+.resume-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.resume-skill-category {
+  font-weight: 700;
+}
+
+.resume-skill-items {
+  font-weight: 400;
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
+  .resume-paper {
+    box-shadow: none;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Ensure background colors and text print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Prevent page breaks inside entries */
+  .resume-experience-entry,
+  .resume-project-entry,
+  .resume-education-entry {
+    page-break-inside: avoid;
+  }
+
+  /* Keep section headers with content */
+  .resume-section {
+    page-break-inside: avoid;
+  }
+}
+
+/* Preview mode specific styles */
+.resume-preview-container {
+  background-color: #1a1a1a;
+  padding: 2rem;
+  min-height: 100%;
+}
+
+.resume-preview-label {
+  color: #888;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Paper shadow effect for preview */
+.resume-paper-preview {
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 10px 20px -5px rgba(0, 0, 0, 0.3),
+    0 4px 8px -2px rgba(0, 0, 0, 0.2);
+}

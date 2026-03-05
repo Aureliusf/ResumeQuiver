@@ -3,6 +3,9 @@
 /* Google Fonts - Direct Flash Theme */
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+/* Resume Preview Styles */
+@import './styles/resume.css';
+
 /* CSS Variables - Direct Flash Theme */
 :root {
   --df-primary: #0A0A0A;
