@@ -245,6 +245,59 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 <LoadingSpinner size="md" />
 ```
 
+### Fixing CSS Reset Conflicts with Tailwind
+
+Avoid global CSS resets that conflict with Tailwind utility classes:
+```css
+/* DON'T do this - it overrides Tailwind padding classes */
+* {
+  padding: 0;
+}
+
+/* DO this instead - keep Tailwind's defaults */
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+```
+
+### Adding Backdrop Blur to Overlays
+
+For frosted glass effect on dropdowns and modals:
+```tsx
+// Dropdown menu with backdrop blur
+<div className="absolute top-full left-0 mt-2 w-64 
+  bg-df-surface/95 border border-df-border rounded-xl 
+  shadow-2xl overflow-hidden z-50 backdrop-blur-md">
+
+// Modal with backdrop blur
+<div className="bg-df-surface/95 border border-df-border 
+  max-w-lg w-full max-h-[80vh] overflow-hidden backdrop-blur-md">
+```
+
+**Important:** Ensure parent containers have proper stacking context:
+```tsx
+// Add 'isolate' to parent for backdrop-filter to work
+<div className="relative isolate">
+  {/* dropdown/modal content here */}
+</div>
+```
+
+### Fixing Overflow Issues with Absolutely Positioned Elements
+
+When buttons or elements are cut off by parent containers:
+```tsx
+// DON'T - overflow-hidden clips absolute positioned children
+<aside className="relative flex flex-col h-full w-full overflow-hidden">
+  <button className="absolute -right-3 top-6">...</button>
+</aside>
+
+// DO - remove overflow-hidden or use overflow-visible
+<aside className="relative flex flex-col h-full w-full">
+  <button className="absolute -right-3 top-6">...</button>
+</aside>
+```
+
 ## Styling Guidelines
 
 ### Color Palette (Direct Flash Theme)
@@ -280,6 +333,26 @@ className="focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2"
 3. **Use useCallback** for function props
 4. **Lazy load** heavy components if needed
 5. **Debounce** user input (already done for YAML parsing)
+
+## Recent UI Improvements
+
+### Enhanced Padding and Spacing (2026-03-06)
+- Preview panel toolbar: increased from `px-6 py-3` to `px-8 py-5`
+- Resume selector button: increased from `px-3 py-1.5` to `px-5 py-2.5`
+- Navigation tabs: increased from `px-4 py-2` to `px-5 py-2.5`
+- Valid status badge: increased from `px-3 py-1.5` to `px-4 py-2`
+- Save button: increased from `px-4 py-2` to `px-5 py-2.5`
+- Section headers: increased from `p-4` to `p-5`
+
+### Backdrop Blur Effects
+- Resume selector dropdown now has frosted glass effect with `backdrop-blur-md`
+- Keyboard shortcuts modal uses translucent background
+- AI Rewrite modal features backdrop blur for better text readability
+
+### Layout Fixes
+- Fixed CSS reset that was overriding Tailwind padding classes
+- Resolved sidebar toggle button being clipped by overflow-hidden
+- Added proper stacking context (`isolate`) for backdrop-filter support
 
 ## Layout System
 
