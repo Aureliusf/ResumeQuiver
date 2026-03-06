@@ -21,7 +21,7 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
       aria-modal="true"
       aria-labelledby="keyboard-shortcuts-title"
     >
-      <div className="bg-df-surface border border-df-border max-w-lg w-full max-h-[80vh] overflow-hidden">
+      <div className="bg-df-surface/95 border border-df-border max-w-lg w-full max-h-[80vh] overflow-hidden backdrop-blur-md">
         {/* Header */}
         <div className="p-4 border-b border-df-border flex items-center justify-between">
           <div className="flex items-center gap-3">

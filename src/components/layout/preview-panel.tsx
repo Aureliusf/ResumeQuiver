@@ -44,7 +44,7 @@ function PreviewPanelComponent() {
 
   const handleGeneratePDF = async () => {
     if (!resume || !isValid) return;
-    
+
     setIsGenerating(true);
     try {
       const blob = await generatePDF(resume, new Map());
@@ -89,16 +89,15 @@ function PreviewPanelComponent() {
   const pageBreakPosition = (PAGE_HEIGHT / baseHeight) * scaledHeight;
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className={`flex-1 flex flex-col bg-df-primary overflow-hidden transition-all ${
-        isFullscreen ? 'fixed inset-0 z-50' : ''
-      }`}
+      className={`flex-1 flex flex-col bg-df-primary overflow-hidden transition-all ${isFullscreen ? 'fixed inset-0 z-50' : ''
+        }`}
     >
       {/* Page Limit Warning Banner */}
       {isOverOnePage && (
-        <div className="px-6 py-2 bg-df-accent-red/10 border-b border-df-accent-red/30 flex items-center gap-3 flex-shrink-0">
-          <AlertTriangle className="w-4 h-4 text-df-accent-red flex-shrink-0" />
+        <div className="px-6 py-2 bg-df-accent-red/10 border-b border-df-accent-red/30 flex items-center gap-3 shrink-0">
+          <AlertTriangle className="w-4 h-4 text-df-accent-red shrink-0" />
           <span className="text-sm text-df-accent-red font-medium">
             Content exceeds 1 page ({overflowPercentage}% overflow)
           </span>
@@ -109,7 +108,7 @@ function PreviewPanelComponent() {
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-8 py-5 border-b border-df-border bg-df-surface/50 backdrop-blur flex-shrink-0">
+      <div className="flex items-center justify-between px-2 py-2 border-b border-df-border bg-df-surface/50 backdrop-blur shrink-0">
         <div className="flex items-center gap-4">
           <h2 className="text-sm font-medium text-df-text">Preview</h2>
           <div className="h-4 w-px bg-df-border" />
@@ -159,9 +158,9 @@ function PreviewPanelComponent() {
 
       {/* Preview Area */}
       <div className="flex-1 overflow-auto p-8 bg-df-primary bg-grid flex items-start justify-center">
-        <div 
+        <div
           className="relative shadow-2xl shadow-black/50"
-          style={{ 
+          style={{
             width: `${scaledWidth}px`,
             height: `${scaledHeight}px`,
             maxWidth: '100%',
@@ -169,7 +168,7 @@ function PreviewPanelComponent() {
         >
           {/* Page break indicator line */}
           {isOverOnePage && (
-            <div 
+            <div
               className="absolute left-0 right-0 border-t-2 border-dashed border-df-accent-red/50 z-10 pointer-events-none"
               style={{ top: `${pageBreakPosition}px` }}
             >
@@ -178,8 +177,8 @@ function PreviewPanelComponent() {
               </span>
             </div>
           )}
-          
-          <div 
+
+          <div
             className="origin-top-left"
             style={{
               width: `${baseWidth}px`,
@@ -194,7 +193,7 @@ function PreviewPanelComponent() {
       </div>
 
       {/* Status Bar */}
-      <div className="px-6 py-2 border-t border-df-border bg-df-surface/30 flex items-center justify-between text-xs text-df-text-muted flex-shrink-0">
+      <div className="px-6 py-2 border-t border-df-border bg-df-surface/30 flex items-center justify-between text-xs text-df-text-muted shrink-0">
         <div className="flex items-center gap-4">
           <span className={`flex items-center gap-1.5 ${isValid ? 'text-df-accent-green' : 'text-df-accent-red'}`}>
             <span className={`w-2 h-2 rounded-full ${isValid ? 'bg-df-accent-green status-dot' : 'bg-df-accent-red'}`} />

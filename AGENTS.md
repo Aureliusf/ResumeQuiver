@@ -11,7 +11,9 @@ A modern, AI-powered resume builder that uses YAML for editing and features a Di
 - **PDF generation** using React-PDF with Jake's Resume template
 - **Bullet library** for selecting which bullets to include
 - **Multiple resumes** with localStorage persistence
-- **Dark mode** with Direct Flash theme (cyan/red accents on dark background)
+- **Resizable panels** - Drag-to-resize sidebar, preview, and workspace
+- **Multi-theme support** - 5 color themes including Direct Flash (default), Purple, Gradient, Warm, and Full Color
+- **Enhanced preview** with zoom, fullscreen, PDF export, and page overflow detection
 
 ## Architecture
 
@@ -46,13 +48,19 @@ src/
 │   ├── help/
 │   │   └── keyboard-shortcuts-modal.tsx  # Keyboard shortcuts help
 │   ├── layout/
-│   │   ├── app-shell.tsx          # Main app container
-│   │   ├── header.tsx             # App header with tabs
-│   │   ├── left-panel.tsx         # Resume preview panel
+│   │   ├── app-shell.tsx          # Main app container (wraps FluidLayout)
+│   │   ├── floating-reset-button.tsx # Layout reset button
+│   │   ├── floating-sidebar.tsx   # Collapsible bullet library sidebar
+│   │   ├── fluid-layout.tsx       # Three-panel resizable layout (main)
+│   │   ├── header.tsx             # App header with tabs and resume selector
+│   │   ├── left-panel.tsx         # Legacy resume preview panel
 │   │   ├── mobile-bullet-modal.tsx # Mobile bullet library modal
 │   │   ├── mobile-nav.tsx         # Mobile navigation
-│   │   ├── responsive-app-shell.tsx # Responsive layout
-│   │   └── right-panel.tsx        # Editor/AI/Tailoring panel
+│   │   ├── preview-panel.tsx      # Enhanced resume preview with zoom/PDF
+│   │   ├── resize-handle.tsx      # Resizable panel drag handle
+│   │   ├── responsive-app-shell.tsx # Legacy responsive layout
+│   │   ├── right-panel.tsx        # Legacy editor panel
+│   │   └── workspace-panel.tsx    # Editor/AI/Tailoring container
 │   ├── preview/
 │   │   ├── pdf-document.tsx       # React-PDF document
 │   │   └── resume-preview.tsx     # HTML resume preview
@@ -63,15 +71,17 @@ src/
 │   │   ├── match-results.tsx      # Tailoring match results
 │   │   └── tailoring-panel.tsx    # Job tailoring panel
 │   └── ui/
-│       └── loading-spinner.tsx    # Reusable loading spinner
+│       ├── loading-spinner.tsx    # Reusable loading spinner
+│       └── theme-switcher.tsx     # Theme selection UI
 ├── contexts/
 │   ├── resume-context.tsx         # Resume data context
-│   └── settings-context.tsx       # AI settings context
+│   └── settings-context.tsx       # AI settings and theme context
 ├── data/
 │   └── sample-resume.ts           # Sample resume data
 ├── hooks/
 │   ├── use-ai.ts                  # AI operations hook
 │   ├── use-keyboard-shortcuts.ts  # Keyboard shortcuts hook
+│   ├── use-resizable-panels.ts    # Resizable panels hook
 │   └── use-tailoring.ts           # Job tailoring hook
 ├── lib/
 │   ├── ai-client.ts               # AI API client
@@ -79,6 +89,8 @@ src/
 │   ├── date-utils.ts              # Date formatting utilities
 │   ├── pdf-export.ts              # PDF generation
 │   ├── storage.ts                 # localStorage persistence
+│   ├── tag-colors.ts              # Skill tag color mappings
+│   ├── themes.ts                  # Multi-theme system
 │   ├── toast.ts                   # Toast notification utilities
 │   └── yaml-utils.ts              # YAML parsing/stringifying
 ├── schemas/
@@ -101,9 +113,9 @@ src/
 - Auto-parses YAML and validates with Zod
 
 **Settings Context** (`contexts/settings-context.tsx`)
-- Manages AI provider configuration
+- Manages AI provider configuration and theme selection
 - Persists settings to localStorage
-- Provides API key, base URL, and model selection
+- Provides API key, base URL, model, and theme selection
 
 ### Key Design Decisions
 
@@ -139,6 +151,20 @@ src/
 - `components/preview/pdf-document.tsx` - React-PDF template
 - `components/preview/resume-preview.tsx` - HTML preview
 - `lib/pdf-export.ts` - Export utilities
+
+### Layout System
+- `components/layout/fluid-layout.tsx` - Three-panel resizable layout (main)
+- `components/layout/floating-sidebar.tsx` - Collapsible bullet library sidebar
+- `components/layout/preview-panel.tsx` - Enhanced resume preview with zoom/PDF
+- `components/layout/workspace-panel.tsx` - Editor/AI/Tailoring container
+- `components/layout/resize-handle.tsx` - Resizable panel drag handle
+- `components/layout/floating-reset-button.tsx` - Layout reset button
+- `hooks/use-resizable-panels.ts` - Resizable panels hook
+
+### Theme System
+- `components/ui/theme-switcher.tsx` - Theme selection UI
+- `lib/themes.ts` - Multi-theme system (5 themes)
+- `lib/tag-colors.ts` - Skill tag color mappings
 
 ## How to Add Features
 
@@ -178,7 +204,7 @@ export default memo(NewAIFeature);
 
 1. Update `TabId` type in `components/layout/header.tsx`
 2. Add tab configuration to tabs array
-3. Add case in `components/layout/right-panel.tsx`
+3. Add case in `components/layout/workspace-panel.tsx` (or `right-panel.tsx` for legacy layout)
 4. Create the panel component
 5. Add keyboard shortcut in `use-keyboard-shortcuts.ts`
 
@@ -187,7 +213,7 @@ export default memo(NewAIFeature);
 1. Add shortcut definition to `keyboardShortcuts` array in `use-keyboard-shortcuts.ts`
 2. Add handler to `KeyboardShortcutHandlers` interface
 3. Implement handler in `useKeyboardShortcuts` hook
-4. Pass handler to `useKeyboardShortcuts` in `responsive-app-shell.tsx`
+4. Pass handler to `useKeyboardShortcuts` in `fluid-layout.tsx` (or `responsive-app-shell.tsx` for legacy layout)
 
 ### Adding Toast Notifications
 
@@ -222,14 +248,19 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 ## Styling Guidelines
 
 ### Color Palette (Direct Flash Theme)
-- Primary background: `#0A0A0A` (`bg-df-primary`)
-- Surface: `#1A1A1A` (`bg-df-surface`)
-- Elevated: `#252525` (`bg-df-elevated`)
-- Text: `#FFFFFF` (`text-df-text`)
-- Text secondary: `#888888` (`text-df-text-secondary`)
-- Accent red: `#FF3366` (`text-df-accent-red`, `bg-df-accent-red`)
-- Accent cyan: `#00FFFF` (`text-df-accent-cyan`, `bg-df-accent-cyan`)
-- Border: `#333333` (`border-df-border`)
+- Primary background: `#0A0A0A` (`--df-primary`)
+- Surface: `#111111` (`--df-surface`)
+- Elevated: `#1A1A1A` (`--df-elevated`)
+- Elevated 2: `#252525` (`--df-elevated-2`)
+- Text: `#FFFFFF` (`--df-text`)
+- Text secondary: `#A0A0A0` (`--df-text-secondary`)
+- Accent red: `#FF3366` (`--df-accent-red`)
+- Accent cyan: `#00FFFF` (`--df-accent-cyan`)
+- Accent purple: `#9933FF` (`--df-accent-purple`)
+- Accent green: `#33FF99` (`--df-accent-green`)
+- Accent yellow: `#FFFF33` (`--df-accent-yellow`)
+- Accent amber: `#FFAA00` (`--df-accent-amber`)
+- Border: `#2A2A2A` (`--df-border`)
 
 ### Focus States
 Always add focus indicators:
@@ -249,6 +280,51 @@ className="focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2"
 3. **Use useCallback** for function props
 4. **Lazy load** heavy components if needed
 5. **Debounce** user input (already done for YAML parsing)
+
+## Layout System
+
+The app uses a **three-panel fluid layout** with resizable panels:
+
+### Panel Structure
+1. **Floating Sidebar** (Left) - Collapsible bullet library
+   - Min width: 56px (collapsed), Max width: 400px
+   - Default: 320px
+   - Toggle button to collapse/expand
+   - Shows bullet selection count when collapsed
+
+2. **Preview Panel** (Center) - Enhanced resume preview
+   - Fixed center position
+   - Zoom controls (50% - 150%)
+   - Fullscreen mode toggle
+   - Page overflow detection
+   - PDF export button
+
+3. **Workspace Panel** (Right) - Editor/AI/Tailoring container
+   - Min width: 350px, Max width: 700px
+   - Default: 500px
+   - Tab-based content switching
+
+### Resizable Panels Hook
+The `useResizablePanels` hook manages panel widths with:
+- localStorage persistence (panel widths saved across sessions)
+- Mouse and touch drag support
+- Visual feedback during resizing
+- Reset to defaults functionality
+
+### Panel Reset
+Users can reset all panels to default widths using the floating reset button (bottom-left) or keyboard shortcut.
+
+## Theme System
+
+The app supports **5 color themes**:
+
+1. **Direct Flash** (default) - Original dark theme with red/cyan accents
+2. **Purple Accent** - Adds purple accent color
+3. **Gradient** - Gradient backgrounds for headers, tabs, and cards
+4. **Warm** - Amber/gold accent colors
+5. **Full Color** - Complete palette with all accent colors
+
+Theme selection is available via the floating theme switcher button (bottom-right) and persists to localStorage.
 
 ## Testing
 

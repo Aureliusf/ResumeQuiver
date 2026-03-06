@@ -98,7 +98,7 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
           </button>
 
           {showResumeDropdown && (
-            <div className="absolute top-full left-0 mt-2 w-64 bg-df-surface border border-df-border rounded-xl shadow-2xl overflow-hidden z-50 content-fade-in">
+            <div className="absolute top-full left-0 mt-2 w-64 bg-df-surface/95 border border-df-border rounded-xl shadow-2xl overflow-hidden z-50 content-fade-in backdrop-blur-md">
               <div className="p-2">
                 <p className="text-xs text-df-text-muted px-3 py-2 uppercase tracking-wider">Your Resumes</p>
                 {resumes.map((r) => (
