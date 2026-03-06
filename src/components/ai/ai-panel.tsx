@@ -3,7 +3,7 @@ import { useSettings } from '@/contexts/settings-context';
 import { RewriteBullet } from './rewrite-bullet';
 import { GenerateBullets } from './generate-bullets';
 import { ImproveSummary } from './improve-summary';
-import { Wand2, Sparkles, FileText, Settings } from 'lucide-react';
+import { Wand2, Sparkles, FileText, Zap } from 'lucide-react';
 
 type TabId = 'rewrite' | 'generate' | 'improve';
 
@@ -12,6 +12,7 @@ interface Tab {
   label: string;
   icon: React.ReactNode;
   component: React.ReactNode;
+  color: string;
 }
 
 export function AIPanel() {
@@ -44,62 +45,65 @@ export function AIPanel() {
     },
   ];
 
+  const activeTabData = tabs.find(tab => tab.id === activeTab);
+
   return (
-    <div className="h-full flex flex-col pt-2">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-space font-semibold text-df-text flex items-center gap-2">
-          <Wand2 className="w-5 h-5 text-df-accent-red" />
-          AI Copywriting
-        </h2>
-        <div className="flex items-center gap-2">
-          {isConfigured ? (
-            <span className="text-xs text-green-400 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-400"></span>
-              Connected
-            </span>
-          ) : (
-            <span className="text-xs text-df-accent-red flex items-center gap-1">
-              <Settings className="w-3 h-3" />
-              Not Configured
-            </span>
-          )}
+    <div className="h-full flex flex-col bg-df-surface">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-df-border bg-df-elevated/30">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-df-accent-purple/10 flex items-center justify-center">
+            <Zap className="w-4 h-4 text-df-accent-purple" />
+          </div>
+          <div>
+            <h2 className="text-sm font-medium text-df-text">AI Assistant</h2>
+            <p className="text-xs text-df-text-muted">
+              {isConfigured ? 'Ready to help' : 'Configure AI to unlock features'}
+            </p>
+          </div>
+        </div>
+        
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+          isConfigured 
+            ? 'bg-df-accent-green/10 text-df-accent-green' 
+            : 'bg-df-text-muted/10 text-df-text-muted'
+        }`}>
+          <span className={`w-2 h-2 rounded-full ${isConfigured ? 'bg-df-accent-green status-dot' : 'bg-df-text-muted'}`} />
+          {isConfigured ? 'Connected' : 'Not Configured'}
         </div>
       </div>
 
       {/* Configuration Summary */}
-      <div className="bg-df-elevated border border-df-border p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-df-text-secondary">Model</span>
-          <span className="text-xs text-df-text font-mono">
-            {model || 'Not configured'}
-          </span>
+      {isConfigured && (
+        <div className="px-6 py-3 border-b border-df-border bg-df-elevated/20">
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-df-text-muted">Model</span>
+              <span className="font-mono text-df-text">{model}</span>
+            </div>
+            <div className="h-3 w-px bg-df-border" />
+            <div className="flex items-center gap-2">
+              <span className="text-df-text-muted">Provider</span>
+              <span className="font-mono text-df-text">
+                {baseUrl ? new URL(baseUrl).hostname : '-'}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-xs text-df-text-secondary">Provider</span>
-          <span className="text-xs text-df-text font-mono">
-            {baseUrl ? new URL(baseUrl).hostname : 'Not configured'}
-          </span>
-        </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-xs text-df-text-secondary">API Key</span>
-          <span className="text-xs text-df-text font-mono">
-            {apiKey ? '••••••••' : 'Not configured'}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Tabs */}
-      <div className="flex border-b border-df-border mb-6">
+      <div className="flex border-b border-df-border">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`
-              flex-1 py-3 px-2 flex items-center justify-center gap-2 font-space font-medium text-sm
-              transition-colors duration-200 border-b-2
+              flex-1 py-3 px-2 flex items-center justify-center gap-2 text-sm font-medium
+              transition-all duration-300 border-b-2
               ${activeTab === tab.id
-                ? `text-${tab.color} border-${tab.color}`
-                : 'text-df-text-secondary border-transparent hover:text-df-text hover:border-df-border'
+                ? `text-df-text border-${tab.color} bg-df-elevated/30`
+                : 'text-df-text-secondary border-transparent hover:text-df-text hover:bg-df-elevated/20'
               }
             `}
           >
@@ -112,9 +116,16 @@ export function AIPanel() {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="pb-4">
-          {tabs.find(tab => tab.id === activeTab)?.component}
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="content-fade-in">
+          {!isConfigured && (
+            <div className="mb-6 p-4 bg-df-accent-amber/10 border border-df-accent-amber/20 rounded-xl">
+              <p className="text-sm text-df-accent-amber">
+                Please configure AI settings first. Go to the Editor tab and expand AI Configuration.
+              </p>
+            </div>
+          )}
+          {activeTabData?.component}
         </div>
       </div>
     </div>
