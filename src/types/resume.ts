@@ -4,7 +4,7 @@
 export interface Bullet {
   id: string;
   text: string;
-  tags: string[];
+  tags?: string[];
   selected?: boolean;
   aiGenerated?: boolean;
 }
@@ -44,13 +44,13 @@ export interface SkillCategory {
 
 export interface Basics {
   name: string;
-  email: string;
-  phone: string;
-  location: string;
+  email?: string;
+  phone?: string;
+  location?: string;
   website?: string;
   linkedin?: string;
   github?: string;
-  summary: string;
+  summary?: string;
 }
 
 export interface Resume {

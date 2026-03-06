@@ -18,9 +18,11 @@ interface PDFDocumentProps {
 // Create styles that match Jake's Resume template
 const styles = StyleSheet.create({
   page: {
-    padding: 36, // 0.5in at 72pt per inch
-    fontFamily: 'Times-Roman',
-    fontSize: 10.5,
+    paddingTop: 24,
+    paddingHorizontal: 36,
+    paddingBottom: 36,
+    fontFamily: 'Helvetica',
+    fontSize: 12,
     lineHeight: 1.4,
     backgroundColor: '#ffffff',
   },
@@ -29,14 +31,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   name: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     fontVariant: 'small-caps',
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   contact: {
-    fontSize: 9,
+    fontSize: 10,
     fontStyle: 'italic',
     color: '#333333',
   },
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
     marginBottom: 11,
   },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold',
     fontVariant: 'small-caps',
     letterSpacing: 0.8,
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
   },
   dates: {
     fontStyle: 'italic',
-    fontSize: 9.5,
+    fontSize: 11,
   },
   role: {
     fontWeight: 'bold',
@@ -96,7 +98,7 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   bullet: {
-    fontSize: 10,
+    fontSize: 12,
     marginBottom: 2,
   },
   bulletBullet: {
@@ -120,9 +122,16 @@ const styles = StyleSheet.create({
 });
 
 export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
-  const getSelectedBullets = (parentId: string, bullets: { id: string; text: string }[]) => {
-    const selectedIds = selectedBullets.get(parentId) || [];
-    return bullets.filter((b) => selectedIds.includes(b.id));
+  const getSelectedBullets = (parentId: string, bullets: { id: string; text: string; selected?: boolean }[]) => {
+    const selectedIds = selectedBullets.get(parentId);
+    
+    // If we have selection state in the Map, use it
+    if (selectedIds !== undefined) {
+      return bullets.filter((b) => selectedIds.includes(b.id));
+    }
+    
+    // Otherwise, fall back to the bullet's own selected field (defaults to true)
+    return bullets.filter((b) => b.selected !== false);
   };
 
   // Build contact line

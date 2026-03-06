@@ -5,7 +5,9 @@ import {
   ChevronRight,
   CheckSquare,
   Eye,
-  EyeOff
+  EyeOff,
+  Plus,
+  Minus
 } from 'lucide-react';
 import { useResume } from '@/contexts/resume-context';
 
@@ -21,7 +23,7 @@ interface BulletSection {
 }
 
 function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps) {
-  const { resume, selectedBullets, toggleBullet } = useResume();
+  const { resume, selectedBullets, toggleBullet, selectAllBullets, deselectAllBullets } = useResume();
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   if (!resume) return null;
@@ -42,6 +44,29 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
 
   const totalBullets = sections.reduce((acc, s) => acc + s.bullets.length, 0);
   const selectedCount = Array.from(selectedBullets.values()).reduce((acc, ids) => acc + ids.length, 0);
+
+  // Check if a section is visible (has any bullets selected)
+  const isSectionVisible = (sectionId: string) => {
+    const selectedIds = selectedBullets.get(sectionId) || [];
+    const section = sections.find(s => s.id === sectionId);
+    if (!section) return false;
+    return selectedIds.length > 0;
+  };
+
+  // Toggle section visibility
+  const toggleSectionVisibility = (sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section) return;
+    
+    const selectedIds = selectedBullets.get(sectionId) || [];
+    if (selectedIds.length > 0) {
+      // Hide section (deselect all bullets)
+      deselectAllBullets(sectionId);
+    } else {
+      // Show section (select all bullets)
+      selectAllBullets(sectionId);
+    }
+  };
 
   return (
     <aside 
@@ -79,31 +104,61 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
             const isExpanded = activeSection === section.id;
             const selectedIds = selectedBullets.get(section.id) || [];
             const selectedInSection = section.bullets.filter(b => selectedIds.includes(b.id));
+            const isVisible = isSectionVisible(section.id);
 
             return (
               <div 
                 key={section.id}
-                className="bg-df-elevated/50 rounded-xl border border-df-border overflow-hidden"
+                className={`bg-df-elevated/50 rounded-xl border overflow-hidden transition-all duration-300 ${
+                  isVisible ? 'border-df-border' : 'border-df-border/50 opacity-60'
+                }`}
               >
                 {/* Section Header */}
-                <button
-                  onClick={() => setActiveSection(isExpanded ? null : section.id)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-df-elevated transition-fluid"
-                >
-                  <span className="text-sm font-medium text-df-text text-left pr-3 flex-1 break-words">
-                    {section.title}
-                  </span>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-full flex items-center justify-between p-4 hover:bg-df-elevated transition-fluid">
+                  <button
+                    onClick={() => setActiveSection(isExpanded ? null : section.id)}
+                    className="flex items-center gap-3 flex-1 text-left"
+                  >
+                    {/* Expand/Collapse Button with +/- animation */}
+                    <div className="relative w-5 h-5 flex items-center justify-center flex-shrink-0">
+                      <Plus 
+                        className={`w-4 h-4 text-df-text-secondary absolute transition-all duration-300 ${
+                          isExpanded ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                        }`}
+                      />
+                      <Minus 
+                        className={`w-4 h-4 text-df-accent-cyan absolute transition-all duration-300 ${
+                          isExpanded ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
+                        }`}
+                      />
+                    </div>
+                    <span className={`text-sm font-medium text-left pr-3 flex-1 break-words ${
+                      isVisible ? 'text-df-text' : 'text-df-text-secondary'
+                    }`}>
+                      {section.title}
+                    </span>
+                  </button>
+                  <div className="flex items-center gap-3 flex-shrink-0">
                     <span className="text-xs text-df-text-muted whitespace-nowrap">
                       {selectedInSection.length}/{section.bullets.length}
                     </span>
-                    {isExpanded ? (
-                      <Eye className="w-4 h-4 text-df-accent-cyan flex-shrink-0" />
-                    ) : (
-                      <EyeOff className="w-4 h-4 text-df-text-muted flex-shrink-0" />
-                    )}
+                    {/* Show/Hide Section Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSectionVisibility(section.id);
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid"
+                      title={isVisible ? 'Hide from resume' : 'Show in resume'}
+                    >
+                      {isVisible ? (
+                        <Eye className="w-4 h-4 text-df-accent-cyan" />
+                      ) : (
+                        <EyeOff className="w-4 h-4 text-df-text-muted" />
+                      )}
+                    </button>
                   </div>
-                </button>
+                </div>
 
                 {/* Bullets */}
                 {isExpanded && (

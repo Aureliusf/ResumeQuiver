@@ -4,8 +4,8 @@ import { z } from 'zod';
 export const bulletSchema = z.object({
   id: z.string(),
   text: z.string(),
-  tags: z.array(z.string()),
-  selected: z.boolean().optional(),
+  tags: z.array(z.string()).optional().default([]),
+  selected: z.boolean().optional().default(true),
   aiGenerated: z.boolean().optional(),
 });
 
@@ -46,16 +46,16 @@ export const skillCategorySchema = z.object({
   items: z.array(z.string()),
 });
 
-// Basics schema
+// Basics schema - all fields optional except name
 export const basicsSchema = z.object({
   name: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  location: z.string(),
+  email: z.string().email().optional().or(z.literal('')),
+  phone: z.string().optional().or(z.literal('')),
+  location: z.string().optional().or(z.literal('')),
   website: z.string().optional(),
   linkedin: z.string().optional(),
   github: z.string().optional(),
-  summary: z.string(),
+  summary: z.string().optional().or(z.literal('')),
 });
 
 // Resume schema

@@ -9,7 +9,7 @@ import { BulletCheckbox } from './bullet-checkbox';
 import { showSuccessToast } from '@/lib/toast';
 
 interface BulletItemProps {
-  bullet: { id: string; text: string; tags: string[]; selected?: boolean };
+  bullet: { id: string; text: string; tags?: string[]; selected?: boolean };
   parentId: string;
   parentTitle: string;
   role?: string;
@@ -145,7 +145,7 @@ const BulletItem = memo(function BulletItem({ bullet, parentId, parentTitle, rol
 interface SectionCardProps {
   title: string;
   subtitle?: string;
-  bullets: { id: string; text: string; tags: string[]; selected?: boolean }[];
+  bullets: { id: string; text: string; tags?: string[]; selected?: boolean }[];
   parentId: string;
   role?: string;
   company?: string;

@@ -48,6 +48,26 @@ function collectAllBullets(resume: Resume): Map<string, string[]> {
   return bullets;
 }
 
+function collectSelectedBullets(resume: Resume): Map<string, string[]> {
+  const bullets = new Map<string, string[]>();
+
+  resume.experience.forEach((exp) => {
+    const selectedIds = exp.bullets.filter((b) => b.selected).map((b) => b.id);
+    if (selectedIds.length > 0) {
+      bullets.set(exp.id, selectedIds);
+    }
+  });
+
+  resume.projects.forEach((proj) => {
+    const selectedIds = proj.bullets.filter((b) => b.selected).map((b) => b.id);
+    if (selectedIds.length > 0) {
+      bullets.set(proj.id, selectedIds);
+    }
+  });
+
+  return bullets;
+}
+
 export function ResumeProvider({ children }: { children: React.ReactNode }) {
   const [yamlText, setYamlText] = useState<string>('');
   const [resume, setResume] = useState<Resume | null>(null);
@@ -62,6 +82,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     if (result.success && result.data) {
       setResume(result.data);
       setIsValid(true);
+      setSelectedBullets(collectSelectedBullets(result.data));
     } else {
       setIsValid(false);
     }
