@@ -86,7 +86,7 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
         </div>
 
         {/* Resume Selector */}
-        <div className="relative">
+        <div className="relative isolate">
           <button
             onClick={() => setShowResumeDropdown(!showResumeDropdown)}
             className="flex items-center gap-2 px-5 py-2.5 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text-secondary hover:text-df-text transition-fluid"
