@@ -1,5 +1,5 @@
-import { ResponsiveAppShell } from './responsive-app-shell';
+import { FluidLayout } from './fluid-layout';
 
 export function AppShell() {
-  return <ResponsiveAppShell />;
+  return <FluidLayout />;
 }

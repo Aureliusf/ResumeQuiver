@@ -1,7 +1,16 @@
+import { useState, memo, useEffect } from 'react';
+import { 
+  FileText, 
+  Sparkles, 
+  Target, 
+  Briefcase, 
+  ChevronLeft,
+  Plus,
+  HelpCircle
+} from 'lucide-react';
 import { useResume } from '@/contexts/resume-context';
 import { storage } from '@/lib/storage';
 import type { ResumeListItem } from '@/types/resume';
-import { useState, useEffect, memo } from 'react';
 import { getShortcutHint } from '@/hooks/use-keyboard-shortcuts';
 
 type TabId = 'editor' | 'ai' | 'tailoring' | 'resumes';
@@ -9,73 +18,159 @@ type TabId = 'editor' | 'ai' | 'tailoring' | 'resumes';
 interface HeaderProps {
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
+  onOpenHelp: () => void;
 }
 
-const tabs: { id: TabId; label: string; shortcut: string; color: string }[] = [
-  { id: 'editor', label: 'Editor', shortcut: 'Ctrl/Cmd + 1', color: 'df-accent-cyan' },
-  { id: 'ai', label: 'AI Copywriting', shortcut: 'Ctrl/Cmd + 2', color: 'df-accent-purple' },
-  { id: 'tailoring', label: 'Tailoring', shortcut: 'Ctrl/Cmd + 3', color: 'df-accent-green' },
-  { id: 'resumes', label: 'My Resumes', shortcut: 'Ctrl/Cmd + 4', color: 'df-accent-amber' },
+const tabs: { 
+  id: TabId; 
+  label: string; 
+  icon: typeof FileText;
+  shortcut: string; 
+  color: string;
+  description: string;
+}[] = [
+  { 
+    id: 'editor', 
+    label: 'Editor', 
+    icon: FileText,
+    shortcut: 'Ctrl/Cmd + 1', 
+    color: 'text-df-accent-cyan',
+    description: 'Edit resume content'
+  },
+  { 
+    id: 'ai', 
+    label: 'AI Assistant', 
+    icon: Sparkles,
+    shortcut: 'Ctrl/Cmd + 2', 
+    color: 'text-df-accent-purple',
+    description: 'AI-powered writing'
+  },
+  { 
+    id: 'tailoring', 
+    label: 'Tailor', 
+    icon: Target,
+    shortcut: 'Ctrl/Cmd + 3', 
+    color: 'text-df-accent-green',
+    description: 'Match job descriptions'
+  },
+  { 
+    id: 'resumes', 
+    label: 'Resumes', 
+    icon: Briefcase,
+    shortcut: 'Ctrl/Cmd + 4', 
+    color: 'text-df-accent-amber',
+    description: 'Manage resumes'
+  },
 ];
 
-function HeaderComponent({ activeTab, onTabChange }: HeaderProps) {
-  const { currentResumeId, loadResume, createNewResume } = useResume();
+function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
+  const { currentResumeId, loadResume, createNewResume, resume } = useResume();
   const [resumes, setResumes] = useState<ResumeListItem[]>([]);
+  const [showResumeDropdown, setShowResumeDropdown] = useState(false);
 
   useEffect(() => {
     setResumes(storage.getResumeList());
   }, [currentResumeId]);
 
   return (
-    <header 
-      className="bg-df-surface border-b border-df-border h-16 flex items-center justify-between px-8"
-      role="banner"
-    >
-      <div className="flex items-center pl-8">
-        <h1 className="font-bebas text-2xl text-df-text tracking-wider">
-          YAML Resume Builder
-        </h1>
+    <header className="glass border-b border-df-border h-16 flex items-center justify-between px-6 z-50">
+      {/* Left: Logo & Resume Selector */}
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-df-accent-red to-df-accent-cyan flex items-center justify-center">
+            <FileText className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="font-bebas text-xl text-df-text tracking-wider hidden sm:block">
+            Resume Builder
+          </h1>
+        </div>
+
+        {/* Resume Selector */}
+        <div className="relative">
+          <button
+            onClick={() => setShowResumeDropdown(!showResumeDropdown)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text-secondary hover:text-df-text transition-fluid"
+          >
+            <span className="max-w-[150px] truncate">
+              {resume?.basics.name || 'Untitled Resume'}
+            </span>
+            <ChevronLeft className={`w-4 h-4 transition-transform ${showResumeDropdown ? '-rotate-90' : ''}`} />
+          </button>
+
+          {showResumeDropdown && (
+            <div className="absolute top-full left-0 mt-2 w-64 bg-df-surface border border-df-border rounded-xl shadow-2xl overflow-hidden z-50 content-fade-in">
+              <div className="p-2">
+                <p className="text-xs text-df-text-muted px-3 py-2 uppercase tracking-wider">Your Resumes</p>
+                {resumes.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => {
+                      loadResume(r.id);
+                      setShowResumeDropdown(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-fluid ${
+                      r.id === currentResumeId 
+                        ? 'bg-df-accent-cyan/10 text-df-accent-cyan' 
+                        : 'text-df-text-secondary hover:text-df-text hover:bg-df-elevated'
+                    }`}
+                  >
+                    {r.name}
+                  </button>
+                ))}
+                <div className="border-t border-df-border my-2" />
+                <button
+                  onClick={() => {
+                    createNewResume();
+                    setShowResumeDropdown(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-df-accent-cyan hover:bg-df-accent-cyan/10 transition-fluid"
+                >
+                  <Plus className="w-4 h-4" />
+                  New Resume
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {resumes.length > 1 && (
-        <div className="flex items-center">
-          <label htmlFor="resume-selector" className="sr-only">Select Resume</label>
-          <select
-            id="resume-selector"
-            value={currentResumeId || ''}
-            onChange={(e) => e.target.value === 'new' ? createNewResume() : loadResume(e.target.value)}
-            className="bg-df-elevated text-df-text text-sm px-3 py-1 border border-df-border focus:border-df-accent-cyan focus:outline-2 focus:outline-df-accent-cyan"
-            aria-label="Select or create a resume"
-          >
-            {resumes.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
-            <option value="new">+ New Resume</option>
-          </select>
-        </div>
-      )}
-
-      <nav className="flex items-center gap-2" role="navigation" aria-label="Main navigation">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`px-8 py-4 text-sm font-space transition-colors border-b-2 focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2 ${
-              activeTab === tab.id
-                ? `text-df-text border-${tab.color}`
-                : 'text-df-text-secondary border-transparent hover:text-df-text hover:border-df-border'
-            }`}
-            aria-current={activeTab === tab.id ? 'page' : undefined}
-            title={`${tab.label} (${getShortcutHint(tab.shortcut)})`}
-          >
-            <span className={activeTab === tab.id ? `text-${tab.color}` : ''}>
-              {tab.label}
-            </span>
-          </button>
-        ))}
+      {/* Center: Tab Navigation */}
+      <nav className="hidden md:flex items-center gap-1 bg-df-surface/50 rounded-full p-1 border border-df-border">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                isActive 
+                  ? 'bg-df-elevated text-df-text shadow-lg' 
+                  : 'text-df-text-secondary hover:text-df-text hover:bg-df-elevated/50'
+              }`}
+              title={`${tab.label} (${getShortcutHint(tab.shortcut)})`}
+            >
+              <Icon className={`w-4 h-4 ${isActive ? tab.color : ''}`} />
+              <span className="hidden lg:inline">{tab.label}</span>
+              {isActive && (
+                <span className={`absolute inset-0 rounded-full border border-${tab.color.replace('text-', '')}/30`} />
+              )}
+            </button>
+          );
+        })}
       </nav>
+
+      {/* Right: Actions */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenHelp}
+          className="p-2 text-df-text-secondary hover:text-df-text hover:bg-df-elevated rounded-lg transition-fluid"
+          title="Keyboard shortcuts"
+        >
+          <HelpCircle className="w-5 h-5" />
+        </button>
+      </div>
     </header>
   );
 }
