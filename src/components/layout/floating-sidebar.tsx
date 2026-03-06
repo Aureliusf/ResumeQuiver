@@ -70,7 +70,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
 
   return (
     <aside 
-      className="relative flex flex-col h-full w-full overflow-hidden"
+      className="relative flex flex-col h-full w-full"
     >
       {/* Toggle Button */}
       <button
