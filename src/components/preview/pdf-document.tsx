@@ -124,12 +124,12 @@ const styles = StyleSheet.create({
 export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
   const getSelectedBullets = (parentId: string, bullets: { id: string; text: string; selected?: boolean }[]) => {
     const selectedIds = selectedBullets.get(parentId);
-    
+
     // If we have selection state in the Map, use it
     if (selectedIds !== undefined) {
       return bullets.filter((b) => selectedIds.includes(b.id));
     }
-    
+
     // Otherwise, fall back to the bullet's own selected field (defaults to true)
     return bullets.filter((b) => b.selected !== false);
   };
@@ -154,7 +154,7 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
 
     const start = formatDate(startDate);
     const end = endDate === 'Present' ? 'Present' : formatDate(endDate);
-    return `${start} -- ${end}`;
+    return `${start} - ${end}`;
   };
 
   return (

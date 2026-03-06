@@ -115,40 +115,14 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
               >
                 {/* Section Header */}
                 <div className="w-full flex items-center justify-between p-4 hover:bg-df-elevated transition-fluid">
-                  <button
-                    onClick={() => setActiveSection(isExpanded ? null : section.id)}
-                    className="flex items-center gap-3 flex-1 text-left"
-                  >
-                    {/* Expand/Collapse Button with +/- animation */}
-                    <div className="relative w-5 h-5 flex items-center justify-center flex-shrink-0">
-                      <Plus 
-                        className={`w-4 h-4 text-df-text-secondary absolute transition-all duration-300 ${
-                          isExpanded ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
-                        }`}
-                      />
-                      <Minus 
-                        className={`w-4 h-4 text-df-accent-cyan absolute transition-all duration-300 ${
-                          isExpanded ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
-                        }`}
-                      />
-                    </div>
-                    <span className={`text-sm font-medium text-left pr-3 flex-1 break-words ${
-                      isVisible ? 'text-df-text' : 'text-df-text-secondary'
-                    }`}>
-                      {section.title}
-                    </span>
-                  </button>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className="text-xs text-df-text-muted whitespace-nowrap">
-                      {selectedInSection.length}/{section.bullets.length}
-                    </span>
+                  <div className="flex items-center gap-3 flex-1">
                     {/* Show/Hide Section Button */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleSectionVisibility(section.id);
                       }}
-                      className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid"
+                      className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid flex-shrink-0"
                       title={isVisible ? 'Hide from resume' : 'Show in resume'}
                     >
                       {isVisible ? (
@@ -156,6 +130,35 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                       ) : (
                         <EyeOff className="w-4 h-4 text-df-text-muted" />
                       )}
+                    </button>
+                    <span className={`text-sm font-medium text-left pr-3 flex-1 break-words ${
+                      isVisible ? 'text-df-text' : 'text-df-text-secondary'
+                    }`}>
+                      {section.title}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className="text-xs text-df-text-muted whitespace-nowrap">
+                      {selectedInSection.length}/{section.bullets.length}
+                    </span>
+                    {/* Expand/Collapse Button */}
+                    <button
+                      onClick={() => setActiveSection(isExpanded ? null : section.id)}
+                      className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid"
+                      title={isExpanded ? 'Collapse section' : 'Expand section'}
+                    >
+                      <div className="relative w-4 h-4 flex items-center justify-center">
+                        <Plus 
+                          className={`w-4 h-4 text-df-text-secondary absolute transition-all duration-300 ${
+                            isExpanded ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                          }`}
+                        />
+                        <Minus 
+                          className={`w-4 h-4 text-df-accent-cyan absolute transition-all duration-300 ${
+                            isExpanded ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
+                          }`}
+                        />
+                      </div>
                     </button>
                   </div>
                 </div>
