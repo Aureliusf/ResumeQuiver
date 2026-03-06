@@ -1,8 +1,9 @@
 import { useResume } from '@/contexts/resume-context';
 import { formatDateRange } from '@/lib/date-utils';
+import { forwardRef } from 'react';
 import '@/styles/resume.css';
 
-export function ResumePreview() {
+export const ResumePreview = forwardRef<HTMLDivElement>((_, ref) => {
   const { resume, selectedBullets } = useResume();
 
   if (!resume) {
@@ -28,7 +29,7 @@ export function ResumePreview() {
   if (resume.basics.github) contactItems.push(resume.basics.github);
 
   return (
-    <div className="resume-paper resume-paper-preview">
+    <div ref={ref} className="resume-paper resume-paper-preview">
       {/* Header */}
       <header className="resume-header">
         <h1 className="resume-name">{resume.basics.name}</h1>
@@ -141,4 +142,6 @@ export function ResumePreview() {
       )}
     </div>
   );
-}
+});
+
+ResumePreview.displayName = 'ResumePreview';
