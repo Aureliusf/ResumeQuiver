@@ -1,115 +1,105 @@
-import { useState, useCallback, memo } from 'react';
-import { FileText, Download } from 'lucide-react';
+import { memo, useState, useCallback } from 'react';
 import { useResume } from '@/contexts/resume-context';
-import { generatePDF, downloadPDF, getPDFFilename } from '@/lib/pdf-export';
 import { YamlEditor } from './yaml-editor';
 import { AIConfigBar } from './ai-config-bar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { showSuccessToast, showErrorToast } from '@/lib/toast';
+import { FileText, Save, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 
 function EditorPanelComponent() {
-  const { yamlText, updateYaml, isValid, resume, selectedBullets, saveResume } = useResume();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { yamlText, updateYaml, isValid, saveResume } = useResume();
+  const [showConfig, setShowConfig] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleGeneratePDF = useCallback(async () => {
-    if (!resume || !isValid) return;
-
-    setIsGenerating(true);
-    setError(null);
-
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
     try {
-      const blob = await generatePDF(resume, selectedBullets);
-      const filename = getPDFFilename(resume);
-      downloadPDF(blob, filename);
-      showSuccessToast.pdfGenerated();
+      saveResume();
+      showSuccessToast.resumeSaved();
     } catch (err) {
-      console.error('Failed to generate PDF:', err);
-      setError('Failed to generate PDF. Please try again.');
-      showErrorToast.pdfGeneration();
+      showErrorToast.yamlParse('Failed to save resume');
     } finally {
-      setIsGenerating(false);
+      setIsSaving(false);
     }
-  }, [resume, isValid, selectedBullets]);
-
-  // Listen for keyboard shortcut event
-  const handleSave = useCallback(() => {
-    saveResume();
-    showSuccessToast.resumeSaved();
   }, [saveResume]);
 
-  // Set up event listeners
-  useState(() => {
-    const handleKeyboardSave = () => handleSave();
-    const handleKeyboardPDF = () => handleGeneratePDF();
-    
-    window.addEventListener('save-resume', handleKeyboardSave);
-    window.addEventListener('generate-pdf', handleKeyboardPDF);
-    
-    return () => {
-      window.removeEventListener('save-resume', handleKeyboardSave);
-      window.removeEventListener('generate-pdf', handleKeyboardPDF);
-    };
-  });
-
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-df-surface">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-5 border-b border-df-border bg-df-surface">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-df-border bg-df-elevated/30">
         <div className="flex items-center gap-3">
-          <FileText className="w-4 h-4 text-df-accent-red" aria-hidden="true" />
+          <div className="w-8 h-8 rounded-lg bg-df-accent-cyan/10 flex items-center justify-center">
+            <FileText className="w-4 h-4 text-df-accent-cyan" />
+          </div>
+          <div>
+            <h2 className="text-sm font-medium text-df-text">YAML Editor</h2>
+            <p className="text-xs text-df-text-muted">Edit your resume data</p>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
           {/* Validation Status */}
-          <span
-            className={`text-xs px-2 py-1 font-mono rounded ${
-              isValid
-                ? 'text-df-accent-cyan bg-df-accent-cyan/10'
-                : 'text-df-accent-red bg-df-accent-red/10'
-            }`}
-            role="status"
-            aria-live="polite"
-          >
-            {isValid ? 'Valid YAML' : 'Invalid YAML'}
-          </span>
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+            isValid 
+              ? 'bg-df-accent-green/10 text-df-accent-green' 
+              : 'bg-df-accent-red/10 text-df-accent-red'
+          }`}>
+            {isValid ? (
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            ) : (
+              <AlertCircle className="w-3.5 h-3.5" />
+            )}
+            {isValid ? 'Valid' : 'Invalid'}
+          </div>
           
-          {/* Generate PDF Button */}
+          {/* Save Button */}
           <button
-            onClick={handleGeneratePDF}
-            disabled={!isValid || isGenerating}
-            className="flex items-center gap-2 px-3 py-1.5 bg-df-accent-cyan text-df-primary text-xs font-medium hover:bg-df-accent-cyan/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-2 focus:outline-df-accent-red focus:outline-offset-2"
-            aria-label="Generate and download PDF resume"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-4 py-2 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text transition-fluid disabled:opacity-50"
           >
-            {isGenerating ? (
+            {isSaving ? (
               <LoadingSpinner size="sm" />
             ) : (
-              <Download className="w-3 h-3" aria-hidden="true" />
+              <Save className="w-4 h-4" />
             )}
-            {isGenerating ? 'Generating...' : 'Generate PDF'}
+            <span className="hidden sm:inline">Save</span>
           </button>
         </div>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="px-4 py-2 bg-df-accent-red/10 border-b border-df-accent-red/20" role="alert">
-          <p className="text-xs text-df-accent-red">{error}</p>
+      {/* AI Config Toggle */}
+      <div className="px-6 py-3 border-b border-df-border">
+        <button
+          onClick={() => setShowConfig(!showConfig)}
+          className="flex items-center gap-2 text-sm text-df-text-secondary hover:text-df-text transition-fluid"
+        >
+          <Sparkles className="w-4 h-4 text-df-accent-purple" />
+          <span>AI Configuration</span>
+          <span className={`transform transition-transform ${showConfig ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+      </div>
+
+      {/* AI Config Panel */}
+      {showConfig && (
+        <div className="content-fade-in">
+          <AIConfigBar />
         </div>
       )}
 
-      {/* AI Config Bar */}
-      <div className="mb-6">
-        <AIConfigBar />
-      </div>
-
-      {/* YAML Editor */}
-      <div className="flex-1 min-h-0">
+      {/* Editor */}
+      <div className="flex-1 min-h-0 overflow-hidden">
         <YamlEditor
           value={yamlText}
           onChange={updateYaml}
           error={!isValid}
         />
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-3 border-t border-df-border bg-df-elevated/30 flex items-center justify-between text-xs text-df-text-muted">
+        <span>Use YAML format for structured data</span>
+        <span className="font-mono">Ctrl+S to save</span>
       </div>
     </div>
   );
