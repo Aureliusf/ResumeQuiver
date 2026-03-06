@@ -89,7 +89,7 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
         <div className="relative">
           <button
             onClick={() => setShowResumeDropdown(!showResumeDropdown)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text-secondary hover:text-df-text transition-fluid"
+            className="flex items-center gap-2 px-5 py-2.5 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text-secondary hover:text-df-text transition-fluid"
           >
             <span className="max-w-[150px] truncate">
               {resume?.basics.name || 'Untitled Resume'}
@@ -135,7 +135,7 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
       </div>
 
       {/* Center: Tab Navigation */}
-      <nav className="hidden md:flex items-center gap-1 bg-df-surface/50 rounded-full p-1 border border-df-border">
+      <nav className="hidden md:flex items-center gap-1 bg-df-surface/50 rounded-full p-1.5 border border-df-border">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -144,7 +144,7 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 isActive 
                   ? 'bg-df-elevated text-df-text shadow-lg' 
                   : 'text-df-text-secondary hover:text-df-text hover:bg-df-elevated/50'

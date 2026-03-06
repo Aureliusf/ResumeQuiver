@@ -114,7 +114,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                 }`}
               >
                 {/* Section Header */}
-                <div className="w-full flex items-center justify-between p-4 hover:bg-df-elevated transition-fluid">
+                <div className="w-full flex items-center justify-between p-5 hover:bg-df-elevated transition-fluid">
                   <div className="flex items-center gap-3 flex-1">
                     {/* Show/Hide Section Button */}
                     <button

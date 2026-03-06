@@ -109,7 +109,7 @@ function PreviewPanelComponent() {
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-df-border bg-df-surface/50 backdrop-blur flex-shrink-0">
+      <div className="flex items-center justify-between px-8 py-5 border-b border-df-border bg-df-surface/50 backdrop-blur flex-shrink-0">
         <div className="flex items-center gap-4">
           <h2 className="text-sm font-medium text-df-text">Preview</h2>
           <div className="h-4 w-px bg-df-border" />

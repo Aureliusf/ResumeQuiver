@@ -39,7 +39,7 @@ function EditorPanelComponent() {
         
         <div className="flex items-center gap-3">
           {/* Validation Status */}
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium ${
             isValid 
               ? 'bg-df-accent-green/10 text-df-accent-green' 
               : 'bg-df-accent-red/10 text-df-accent-red'
@@ -56,7 +56,7 @@ function EditorPanelComponent() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text transition-fluid disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2.5 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text transition-fluid disabled:opacity-50"
           >
             {isSaving ? (
               <LoadingSpinner size="sm" />
