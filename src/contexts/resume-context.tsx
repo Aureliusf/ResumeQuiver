@@ -1,6 +1,13 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { sampleResume, createEmptyResume } from '@/data/sample-resume';
-import { moveArrayItem, reorderBasicsFields, type BasicFieldKey, type MoveDirection } from '@/lib/bullet-library';
+import {
+  moveArrayItem,
+  moveArrayItemToIndex,
+  reorderBasicsFields,
+  reorderBasicsFieldsToIndex,
+  type BasicFieldKey,
+  type MoveDirection,
+} from '@/lib/bullet-library';
 import { storage } from '@/lib/storage';
 import { parseYaml, stringifyYaml } from '@/lib/yaml-utils';
 import type { Resume } from '@/types/resume';
@@ -23,6 +30,7 @@ interface ResumeContextActions {
   deselectAllBullets: (parentId: string) => void;
   toggleSectionItem: (sectionKind: ToggleableSectionKind, itemId: string | number) => void;
   moveSectionItem: (sectionKind: MovableSectionKind, itemId: string | number, direction: MoveDirection) => void;
+  moveSectionItemToIndex: (sectionKind: MovableSectionKind, itemId: string | number, targetIndex: number) => void;
   updateBullet: (parentId: string, bulletId: string, newText: string) => void;
   updateSummary: (newSummary: string) => void;
   saveResume: () => void;
@@ -320,6 +328,86 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     });
   }, [commitResumeUpdate]);
 
+  const moveSectionItemToIndex = useCallback((
+    sectionKind: MovableSectionKind,
+    itemId: string | number,
+    targetIndex: number
+  ) => {
+    setResume((prevResume) => {
+      if (!prevResume) return prevResume;
+
+      if (sectionKind === 'basics' && typeof itemId === 'string') {
+        const nextBasics = reorderBasicsFieldsToIndex(prevResume.basics, itemId as BasicFieldKey, targetIndex);
+        if (nextBasics === prevResume.basics) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          basics: nextBasics,
+        });
+      }
+
+      if (sectionKind === 'education' && typeof itemId === 'string') {
+        const index = prevResume.education.findIndex((entry) => entry.id === itemId);
+        const nextEducation = moveArrayItemToIndex(prevResume.education, index, targetIndex);
+
+        if (nextEducation === prevResume.education) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          education: nextEducation,
+        });
+      }
+
+      if (sectionKind === 'experience' && typeof itemId === 'string') {
+        const index = prevResume.experience.findIndex((entry) => entry.id === itemId);
+        const nextExperience = moveArrayItemToIndex(prevResume.experience, index, targetIndex);
+
+        if (nextExperience === prevResume.experience) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          experience: nextExperience,
+        });
+      }
+
+      if (sectionKind === 'project' && typeof itemId === 'string') {
+        const index = prevResume.projects.findIndex((entry) => entry.id === itemId);
+        const nextProjects = moveArrayItemToIndex(prevResume.projects, index, targetIndex);
+
+        if (nextProjects === prevResume.projects) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          projects: nextProjects,
+        });
+      }
+
+      if (sectionKind === 'skills') {
+        const index = typeof itemId === 'number' ? itemId : Number(itemId);
+        const nextSkills = moveArrayItemToIndex(prevResume.skills, index, targetIndex);
+
+        if (nextSkills === prevResume.skills) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          skills: nextSkills,
+        });
+      }
+
+      return prevResume;
+    });
+  }, [commitResumeUpdate]);
+
   const updateBullet = useCallback((parentId: string, bulletId: string, newText: string) => {
     setResume((prevResume) => {
       if (!prevResume) return prevResume;
@@ -499,6 +587,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
       deselectAllBullets,
       toggleSectionItem,
       moveSectionItem,
+      moveSectionItemToIndex,
       updateBullet,
       updateSummary,
       saveResume,
@@ -517,6 +606,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
       deselectAllBullets,
       toggleSectionItem,
       moveSectionItem,
+      moveSectionItemToIndex,
       updateBullet,
       updateSummary,
       saveResume,

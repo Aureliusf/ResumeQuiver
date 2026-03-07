@@ -1,7 +1,5 @@
-import { memo, useState } from 'react';
+import { memo, useState, type KeyboardEvent } from 'react';
 import {
-  ArrowDown,
-  ArrowUp,
   CheckSquare,
   ChevronLeft,
   ChevronRight,
@@ -12,6 +10,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { useResume } from '@/contexts/resume-context';
+import { useBulletLibraryDnd } from '@/hooks/use-bullet-library-dnd';
 import {
   buildBulletLibraryGroups,
   type BulletLibrarySection,
@@ -37,6 +36,7 @@ const sectionToneStyles: Record<SectionKind, {
   rowHover: string;
   checkboxSelected: string;
   moveAction: string;
+  indicator: string;
 }> = {
   basics: {
     groupBadge: 'border border-df-accent-amber/25 bg-df-accent-amber/10 text-df-accent-amber',
@@ -50,6 +50,7 @@ const sectionToneStyles: Record<SectionKind, {
     rowHover: 'hover:bg-df-accent-amber/5 hover:text-df-text',
     checkboxSelected: 'bg-df-accent-amber border-df-accent-amber',
     moveAction: 'hover:text-df-accent-amber',
+    indicator: 'bg-df-accent-amber',
   },
   education: {
     groupBadge: 'border border-df-accent-green/25 bg-df-accent-green/10 text-df-accent-green',
@@ -63,6 +64,7 @@ const sectionToneStyles: Record<SectionKind, {
     rowHover: 'hover:bg-df-accent-green/5 hover:text-df-text',
     checkboxSelected: 'bg-df-accent-green border-df-accent-green',
     moveAction: 'hover:text-df-accent-green',
+    indicator: 'bg-df-accent-green',
   },
   experience: {
     groupBadge: 'border border-df-accent-cyan/25 bg-df-accent-cyan/10 text-df-accent-cyan',
@@ -76,6 +78,7 @@ const sectionToneStyles: Record<SectionKind, {
     rowHover: 'hover:bg-df-accent-cyan/5 hover:text-df-text',
     checkboxSelected: 'bg-df-accent-cyan border-df-accent-cyan',
     moveAction: 'hover:text-df-accent-cyan',
+    indicator: 'bg-df-accent-cyan',
   },
   project: {
     groupBadge: 'border border-df-accent-red/25 bg-df-accent-red/10 text-df-accent-red',
@@ -89,6 +92,7 @@ const sectionToneStyles: Record<SectionKind, {
     rowHover: 'hover:bg-df-accent-red/5 hover:text-df-text',
     checkboxSelected: 'bg-df-accent-red border-df-accent-red',
     moveAction: 'hover:text-df-accent-red',
+    indicator: 'bg-df-accent-red',
   },
   skills: {
     groupBadge: 'border border-df-accent-purple/25 bg-df-accent-purple/10 text-df-accent-purple',
@@ -102,6 +106,7 @@ const sectionToneStyles: Record<SectionKind, {
     rowHover: 'hover:bg-df-accent-purple/5 hover:text-df-text',
     checkboxSelected: 'bg-df-accent-purple border-df-accent-purple',
     moveAction: 'hover:text-df-accent-purple',
+    indicator: 'bg-df-accent-purple',
   },
 };
 
@@ -114,9 +119,20 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
     deselectAllBullets,
     toggleSectionItem,
     moveSectionItem,
+    moveSectionItemToIndex,
   } = useResume();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Partial<Record<SectionKind, boolean>>>({});
+  const {
+    draggedSectionId,
+    startDrag,
+    updateDropTarget,
+    dropOnSection,
+    getDropPosition,
+    clearDragState,
+  } = useBulletLibraryDnd({
+    onReorder: moveSectionItemToIndex,
+  });
 
   if (!resume) return null;
 
@@ -166,6 +182,21 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
       ...prev,
       [groupKind]: !prev[groupKind],
     }));
+  };
+
+  const handleMoveKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    section: BulletLibrarySection
+  ) => {
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveSectionItem(section.kind, section.moveId, 'up');
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveSectionItem(section.kind, section.moveId, 'down');
+    }
   };
 
   return (
@@ -240,17 +271,27 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
 
                 {!isGroupCollapsed && (
                   <div id={`floating-bullet-group-${group.kind}`} className="space-y-3">
-                    {group.sections.map((section, index) => {
+                    {group.sections.map((section) => {
                       const { selectedInSection, isToggleable, isVisible, isExpandable } = getSectionState(section);
                       const isExpanded = activeSection === section.id;
+                      const dropPosition = getDropPosition(group.kind, section.id);
+                      const isDragging = draggedSectionId === section.id;
 
                       return (
                         <div
                           key={section.id}
-                          className={`rounded-xl border overflow-hidden transition-all duration-300 ${
+                          onDragOver={(event) => updateDropTarget(event, group.kind, section.id)}
+                          onDrop={(event) => dropOnSection(event, group.kind, group.sections, section.id)}
+                          className={`relative rounded-xl border overflow-hidden transition-all duration-300 ${
                             isVisible ? `${tone.cardBorder} bg-df-elevated/50` : `border-df-border/50 ${tone.cardSurface} opacity-60`
-                          }`}
+                          } ${isDragging ? 'opacity-45' : ''}`}
                         >
+                          {dropPosition === 'before' && (
+                            <div className={`absolute left-4 right-4 top-0 h-0.5 rounded-full pointer-events-none ${tone.indicator}`} />
+                          )}
+                          {dropPosition === 'after' && (
+                            <div className={`absolute left-4 right-4 bottom-0 h-0.5 rounded-full pointer-events-none ${tone.indicator}`} />
+                          )}
                           <div className="w-full flex items-center justify-between p-5 transition-fluid">
                             <div className="flex items-start gap-3 flex-1 min-w-0">
                               {isToggleable ? (
@@ -296,20 +337,17 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
 
                             <div className="flex items-center gap-1 flex-shrink-0 ml-3">
                               <button
-                                onClick={() => moveSectionItem(section.kind, section.moveId, 'up')}
-                                disabled={index === 0}
-                                className={`p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed ${tone.moveAction}`}
-                                title={`Move ${section.title} up`}
+                                draggable
+                                onDragStart={(event) => startDrag(event, group.kind, section)}
+                                onDragEnd={clearDragState}
+                                onKeyDown={(event) => handleMoveKeyDown(event, section)}
+                                className={`p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid text-df-text-secondary cursor-grab active:cursor-grabbing focus:outline-2 focus:outline-offset-2 ${tone.moveAction}`}
+                                title={`Drag to reorder ${section.title}`}
+                                aria-label={`Drag to reorder ${section.title}. Use arrow keys to move with the keyboard.`}
                               >
-                                <ArrowUp className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => moveSectionItem(section.kind, section.moveId, 'down')}
-                                disabled={index === group.sections.length - 1}
-                                className={`p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed ${tone.moveAction}`}
-                                title={`Move ${section.title} down`}
-                              >
-                                <ArrowDown className="w-4 h-4" />
+                                <span className="inline-block rotate-90 text-lg leading-none select-none" aria-hidden="true">
+                                  ⠿
+                                </span>
                               </button>
                               {isExpandable && (
                                 <button

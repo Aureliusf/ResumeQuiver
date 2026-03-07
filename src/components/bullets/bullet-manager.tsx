@@ -1,7 +1,5 @@
-import { useState, memo } from 'react';
+import { useState, memo, type DragEvent, type KeyboardEvent } from 'react';
 import {
-  ArrowDown,
-  ArrowUp,
   ChevronDown,
   ChevronUp,
   CheckSquare,
@@ -13,12 +11,14 @@ import {
 } from 'lucide-react';
 import { useResume } from '@/contexts/resume-context';
 import { useSettings } from '@/contexts/settings-context';
+import { useBulletLibraryDnd } from '@/hooks/use-bullet-library-dnd';
 import { useAI } from '@/hooks/use-ai';
 import { SuggestionCard } from '@/components/ai/suggestion-card';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import {
   buildBulletLibraryGroups,
   type BulletLibraryItem,
+  type DropPosition,
   type BulletLibrarySectionKind,
 } from '@/lib/bullet-library';
 import { BulletCheckbox } from './bullet-checkbox';
@@ -34,6 +34,7 @@ const sectionToneStyles: Record<SectionKind, {
   count: string;
   action: string;
   divider: string;
+  indicator: string;
 }> = {
   basics: {
     badgeLabel: 'Basic',
@@ -43,6 +44,7 @@ const sectionToneStyles: Record<SectionKind, {
     count: 'border border-df-accent-amber/25 bg-df-accent-amber/10 text-df-accent-amber',
     action: 'hover:text-df-accent-amber focus:outline-df-accent-amber',
     divider: 'from-df-accent-amber/40',
+    indicator: 'bg-df-accent-amber',
   },
   education: {
     badgeLabel: 'Education',
@@ -52,6 +54,7 @@ const sectionToneStyles: Record<SectionKind, {
     count: 'border border-df-accent-green/25 bg-df-accent-green/10 text-df-accent-green',
     action: 'hover:text-df-accent-green focus:outline-df-accent-green',
     divider: 'from-df-accent-green/40',
+    indicator: 'bg-df-accent-green',
   },
   experience: {
     badgeLabel: 'Experience',
@@ -61,6 +64,7 @@ const sectionToneStyles: Record<SectionKind, {
     count: 'border border-df-accent-cyan/25 bg-df-accent-cyan/10 text-df-accent-cyan',
     action: 'hover:text-df-accent-cyan focus:outline-df-accent-cyan',
     divider: 'from-df-accent-cyan/40',
+    indicator: 'bg-df-accent-cyan',
   },
   project: {
     badgeLabel: 'Project',
@@ -70,6 +74,7 @@ const sectionToneStyles: Record<SectionKind, {
     count: 'border border-df-accent-red/25 bg-df-accent-red/10 text-df-accent-red',
     action: 'hover:text-df-accent-red focus:outline-df-accent-red',
     divider: 'from-df-accent-red/40',
+    indicator: 'bg-df-accent-red',
   },
   skills: {
     badgeLabel: 'Skills',
@@ -79,6 +84,7 @@ const sectionToneStyles: Record<SectionKind, {
     count: 'border border-df-accent-purple/25 bg-df-accent-purple/10 text-df-accent-purple',
     action: 'hover:text-df-accent-purple focus:outline-df-accent-purple',
     divider: 'from-df-accent-purple/40',
+    indicator: 'bg-df-accent-purple',
   },
 };
 
@@ -238,10 +244,13 @@ interface SectionCardProps {
   onToggleItem?: (itemId: string) => void;
   onSelectAll?: () => void;
   onDeselectAll?: () => void;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
+  isDragging: boolean;
+  dropPosition: DropPosition | null;
+  onDragStart: (event: DragEvent<HTMLButtonElement>) => void;
+  onDragEnd: () => void;
+  onDragOver: (event: DragEvent<HTMLElement>) => void;
+  onDrop: (event: DragEvent<HTMLElement>) => void;
+  onHandleKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
 }
 
 const SectionCard = memo(function SectionCard({
@@ -256,10 +265,13 @@ const SectionCard = memo(function SectionCard({
   onToggleItem,
   onSelectAll,
   onDeselectAll,
-  canMoveUp,
-  canMoveDown,
-  onMoveUp,
-  onMoveDown,
+  isDragging,
+  dropPosition,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDrop,
+  onHandleKeyDown,
 }: SectionCardProps) {
   const selectedCount = items.filter((item) => item.selected).length;
   const hasToggleableItems = items.some((item) => item.toggleable);
@@ -269,7 +281,17 @@ const SectionCard = memo(function SectionCard({
   const countLabel = hasToggleableItems ? `${selectedCount} / ${items.length}` : 'Visible';
 
   return (
-    <section className={`bg-df-elevated border ${tone.container}`}>
+    <section
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      className={`relative bg-df-elevated border ${tone.container} ${isDragging ? 'opacity-45' : ''}`}
+    >
+      {dropPosition === 'before' && (
+        <div className={`absolute left-4 right-4 top-0 h-0.5 rounded-full pointer-events-none ${tone.indicator}`} />
+      )}
+      {dropPosition === 'after' && (
+        <div className={`absolute left-4 right-4 bottom-0 h-0.5 rounded-full pointer-events-none ${tone.indicator}`} />
+      )}
       <header className={`p-4 border-b border-df-border ${tone.header}`}>
         <div className="flex justify-between items-start gap-4">
           <div className="min-w-0">
@@ -287,24 +309,19 @@ const SectionCard = memo(function SectionCard({
             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-mono ${tone.count}`}>
               {countLabel}
             </span>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={onMoveUp}
-                disabled={!canMoveUp}
-                className={`p-1.5 text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-2 focus:outline-offset-2 rounded ${tone.action}`}
-                aria-label={`Move ${title} up`}
-              >
-                <ArrowUp className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
-              <button
-                onClick={onMoveDown}
-                disabled={!canMoveDown}
-                className={`p-1.5 text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-2 focus:outline-offset-2 rounded ${tone.action}`}
-                aria-label={`Move ${title} down`}
-              >
-                <ArrowDown className="w-3.5 h-3.5" aria-hidden="true" />
-              </button>
-            </div>
+            <button
+              draggable
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              onKeyDown={onHandleKeyDown}
+              className={`p-1.5 text-df-text-secondary transition-colors focus:outline-2 focus:outline-offset-2 rounded cursor-grab active:cursor-grabbing ${tone.action}`}
+              aria-label={`Drag to reorder ${title}. Use arrow keys to move with the keyboard.`}
+              title={`Drag to reorder ${title}`}
+            >
+              <span className="inline-block rotate-90 text-lg leading-none select-none" aria-hidden="true">
+                ⠿
+              </span>
+            </button>
           </div>
         </div>
 
@@ -376,7 +393,18 @@ export const BulletManager = memo(function BulletManager() {
     deselectAllBullets,
     toggleSectionItem,
     moveSectionItem,
+    moveSectionItemToIndex,
   } = useResume();
+  const {
+    draggedSectionId,
+    startDrag,
+    updateDropTarget,
+    dropOnSection,
+    getDropPosition,
+    clearDragState,
+  } = useBulletLibraryDnd({
+    onReorder: moveSectionItemToIndex,
+  });
 
   const groups = resume ? buildBulletLibraryGroups(resume, selectedBullets) : [];
   const totalItems = groups.reduce(
@@ -396,6 +424,22 @@ export const BulletManager = memo(function BulletManager() {
       ...prev,
       [groupKind]: !prev[groupKind],
     }));
+  };
+
+  const handleMoveKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    sectionKind: SectionKind,
+    moveId: string | number
+  ) => {
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveSectionItem(sectionKind, moveId, 'up');
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveSectionItem(sectionKind, moveId, 'down');
+    }
   };
 
   return (
@@ -467,7 +511,7 @@ export const BulletManager = memo(function BulletManager() {
                   </div>
                   {!isGroupCollapsed && (
                     <div id={`bullet-library-group-${group.kind}`} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {group.sections.map((section, index) => (
+                      {group.sections.map((section) => (
                         <SectionCard
                           key={section.id}
                           kind={section.kind}
@@ -495,10 +539,13 @@ export const BulletManager = memo(function BulletManager() {
                               ? () => deselectAllBullets(section.id)
                               : undefined
                           }
-                          canMoveUp={index > 0}
-                          canMoveDown={index < group.sections.length - 1}
-                          onMoveUp={() => moveSectionItem(section.kind, section.moveId, 'up')}
-                          onMoveDown={() => moveSectionItem(section.kind, section.moveId, 'down')}
+                          isDragging={draggedSectionId === section.id}
+                          dropPosition={getDropPosition(group.kind, section.id)}
+                          onDragStart={(event) => startDrag(event, group.kind, section)}
+                          onDragEnd={clearDragState}
+                          onDragOver={(event) => updateDropTarget(event, group.kind, section.id)}
+                          onDrop={(event) => dropOnSection(event, group.kind, group.sections, section.id)}
+                          onHandleKeyDown={(event) => handleMoveKeyDown(event, section.kind, section.moveId)}
                         />
                       ))}
                     </div>
