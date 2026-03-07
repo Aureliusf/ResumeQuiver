@@ -2,8 +2,8 @@
 
 A modern, AI-powered resume builder with YAML editing, AI copywriting assistance, job tailoring, and PDF export. Features a sleek dark theme inspired by Direct Flash aesthetics.
 
-![Resume Builder](https://img.shields.io/badge/React-18-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
+![Resume Builder](https://img.shields.io/badge/React-18-blue.svg)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4.0-06B6D4.svg)
 
 ## Features
@@ -55,7 +55,6 @@ To use AI features, you need to configure an AI provider:
 
 ### Other Providers
 You can use any OpenAI-compatible API:
-- **Anthropic Claude**: Use https://api.anthropic.com/v1
 - **OpenRouter**: Use https://openrouter.ai/api/v1
 - **Local LLM**: Use your local endpoint (e.g., http://localhost:8080/v1)
 
@@ -159,12 +158,7 @@ MIT
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-See [TESTING.md](./TESTING.md) for the testing checklist.
+PRs welcome :)
 
 ## Support
 
