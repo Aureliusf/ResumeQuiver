@@ -1,5 +1,8 @@
+import './instrument'
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import * as Sentry from '@sentry/react'
 import App from './App'
 import './index.css'
 import { SpeedInsights } from "@vercel/speed-insights/react"
@@ -12,7 +15,9 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
-    <SpeedInsights />
+    <Sentry.ErrorBoundary fallback={<p>Something went wrong</p>}>
+      <App />
+      <SpeedInsights />
+    </Sentry.ErrorBoundary>
   </React.StrictMode>,
 )

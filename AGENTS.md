@@ -451,3 +451,66 @@ npm run build
 ```
 
 Output in `dist/` directory.
+
+## Observability
+
+### Sentry Integration (Privacy-First)
+
+Sentry is configured for error monitoring, tracing, and session replay with strict PII scrubbing. All sensitive data is stripped before sending.
+
+**Setup:**
+1. Copy `.env.example` to `.env` and configure your Sentry DSN:
+   ```bash
+   VITE_SENTRY_DSN=your-sentry-dsn-here
+   ```
+
+2. For production source maps, add:
+   ```bash
+   SENTRY_AUTH_TOKEN=sntrys_...
+   SENTRY_ORG=your-org-slug
+   SENTRY_PROJECT=your-project-slug
+   ```
+
+**Configuration Files:**
+- `src/instrument.ts` - Sentry initialization with privacy scrubbing
+- `vite.config.ts` - Source map generation and Sentry Vite plugin
+- `src/main.tsx` - Error boundary wrapping App component
+
+**Privacy Features:**
+- **PII Scrubbing**: Resume data, API keys, and localStorage content stripped
+- **Masked Text**: Session replay masks all text inputs
+- **Blocked Media**: Session replay blocks all media
+- **Filtered Errors**: YAML parsing errors and AI network failures ignored
+- **Variable Stripping**: Local variable values removed from stack traces
+
+**What's Tracked:**
+- JavaScript errors (10% sampling in production)
+- Performance transactions (browser tracing)
+- Component render errors (caught by ErrorBoundary)
+- Session replays on errors
+
+**What's NOT Tracked:**
+- Resume YAML content
+- API keys
+- Local storage data
+- User input values
+- Network response bodies
+
+**Test Sentry:**
+Add to any component temporarily:
+```tsx
+import * as Sentry from '@sentry/react';
+
+<button onClick={() => { throw new Error('Sentry test'); }}>
+  Test Error
+</button>
+<button onClick={() => Sentry.captureMessage('Test message', 'info')}>
+  Test Message
+</button>
+```
+
+**Troubleshooting:**
+- Set `debug: true` in `instrument.ts` for verbose console output
+- Check DSN is configured in `.env` file
+- Ensure `instrument.ts` is imported first in `main.tsx`
+- Source maps require `SENTRY_AUTH_TOKEN` for production builds
