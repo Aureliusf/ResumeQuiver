@@ -14,6 +14,9 @@ A modern, AI-powered resume builder that uses YAML for editing and features a Di
 - **Resizable panels** - Drag-to-resize sidebar, preview, and workspace
 - **Multi-theme support** - 5 color themes including Direct Flash (default), Purple, Gradient, Warm, and Full Color
 - **Enhanced preview** with zoom, fullscreen, PDF export, and page overflow detection
+- **Color-coded bullet library** - Sections grouped by type with unique accent colors (amber for basics, green for education, cyan for experience, red for projects, purple for skills)
+- **Collapsible bullet groups** - Expand/collapse section groups with animated +/- controls
+- **AI model discovery** - Auto-discovers available models from AI providers with searchable dropdown
 
 ## Architecture
 
@@ -34,7 +37,6 @@ src/
 │   ├── ai/
 │   │   ├── ai-panel.tsx           # Main AI panel container
 │   │   ├── generate-bullets.tsx   # Generate bullets from description
-│   │   ├── improve-summary.tsx    # Improve professional summary
 │   │   ├── rewrite-bullet.tsx     # Rewrite single bullet
 │   │   └── suggestion-card.tsx    # Reusable suggestion card
 │   ├── bullets/
@@ -80,12 +82,14 @@ src/
 │   └── sample-resume.ts           # Sample resume data
 ├── hooks/
 │   ├── use-ai.ts                  # AI operations hook
+│   ├── use-bullet-library-dnd.ts  # Bullet library drag-and-drop hook
 │   ├── use-keyboard-shortcuts.ts  # Keyboard shortcuts hook
 │   ├── use-resizable-panels.ts    # Resizable panels hook
 │   └── use-tailoring.ts           # Job tailoring hook
 ├── lib/
 │   ├── ai-client.ts               # AI API client
 │   ├── ai-tailoring.ts            # AI tailoring logic
+│   ├── bullet-library.ts          # Bullet library utilities and types
 │   ├── date-utils.ts              # Date formatting utilities
 │   ├── pdf-export.ts              # PDF generation
 │   ├── storage.ts                 # localStorage persistence
@@ -133,12 +137,11 @@ src/
 - `components/editor/ai-config-bar.tsx` - AI settings form
 
 ### AI Features
-- `components/ai/ai-panel.tsx` - Container with tabs
+- `components/ai/ai-panel.tsx` - Container with tabs (Rewrite, Generate)
 - `components/ai/rewrite-bullet.tsx` - Bullet rewriting
 - `components/ai/generate-bullets.tsx` - Bullet generation
-- `components/ai/improve-summary.tsx` - Summary improvement
 - `hooks/use-ai.ts` - Shared AI logic
-- `lib/ai-client.ts` - API client
+- `lib/ai-client.ts` - API client with model discovery
 
 ### Tailoring Feature
 - `components/tailoring/tailoring-panel.tsx` - Main tailoring UI
@@ -335,6 +338,23 @@ className="focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2"
 5. **Debounce** user input (already done for YAML parsing)
 
 ## Recent UI Improvements
+
+### Bullet Library Enhancements (2026-03-07)
+- **Color-coded sections** - Each section type has unique accent colors:
+  - Basics: Amber (`--df-accent-amber`)
+  - Education: Green (`--df-accent-green`)
+  - Experience: Cyan (`--df-accent-cyan`)
+  - Projects: Red (`--df-accent-red`)
+  - Skills: Purple (`--df-accent-purple`)
+- **Collapsible groups** - Expand/collapse section groups with animated +/- controls
+- **Section tone styles** - Consistent styling across badges, headers, and indicators per section type
+
+### AI Configuration Improvements (2026-03-07)
+- **Model discovery** - Auto-discovers available models from `/models` endpoint
+- **Searchable dropdown** - Type to filter discovered models
+- **Manual fallback** - Can still type custom model names when discovery fails
+- **Loading states** - Visual feedback during model discovery
+- **Removed Summary tab** - AI panel now only has Rewrite and Generate tabs
 
 ### Enhanced Padding and Spacing (2026-03-06)
 - Preview panel toolbar: increased from `px-6 py-3` to `px-8 py-5`
