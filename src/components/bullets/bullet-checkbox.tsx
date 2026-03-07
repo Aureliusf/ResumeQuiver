@@ -2,31 +2,56 @@ import { Check } from 'lucide-react';
 import type { Bullet } from '@/types/resume';
 import { getTagBgColorClass, getTagTextColorClass, getTagBorderColorClass } from '@/lib/tag-colors';
 
+type BulletTone = 'experience' | 'project';
+
 interface BulletCheckboxProps {
   bullet: Bullet;
   isSelected: boolean;
   onToggle: () => void;
+  tone?: BulletTone;
 }
 
-export function BulletCheckbox({ bullet, isSelected, onToggle }: BulletCheckboxProps) {
+const toneClasses: Record<BulletTone, {
+  selectedRow: string;
+  hoverRow: string;
+  selectedCheckbox: string;
+  hoverCheckbox: string;
+}> = {
+  experience: {
+    selectedRow: 'bg-df-accent-cyan/10 border-df-accent-cyan',
+    hoverRow: 'hover:bg-df-accent-cyan/5',
+    selectedCheckbox: 'bg-df-accent-cyan border-df-accent-cyan',
+    hoverCheckbox: 'group-hover:border-df-accent-cyan/70',
+  },
+  project: {
+    selectedRow: 'bg-df-accent-red/10 border-df-accent-red',
+    hoverRow: 'hover:bg-df-accent-red/5',
+    selectedCheckbox: 'bg-df-accent-red border-df-accent-red',
+    hoverCheckbox: 'group-hover:border-df-accent-red/70',
+  },
+};
+
+export function BulletCheckbox({ bullet, isSelected, onToggle, tone = 'experience' }: BulletCheckboxProps) {
+  const toneStyle = toneClasses[tone];
+
   return (
     <div
       className={`group flex items-start gap-3 py-2 px-3 -mx-3 rounded cursor-pointer transition-all ${
         isSelected
-          ? 'bg-df-elevated border-l-2 border-df-accent-red'
-          : 'hover:bg-df-elevated/50 border-l-2 border-transparent'
+          ? `${toneStyle.selectedRow} border-l-2`
+          : `${toneStyle.hoverRow} border-l-2 border-transparent`
       }`}
       onClick={onToggle}
     >
       <div
         className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded border transition-all ${
           isSelected
-            ? 'bg-df-accent-red border-df-accent-red'
-            : 'border-df-text-secondary/50 group-hover:border-df-text-secondary'
+            ? toneStyle.selectedCheckbox
+            : `border-df-text-secondary/50 ${toneStyle.hoverCheckbox}`
         }`}
       >
         {isSelected && (
-          <Check className="w-3 h-3 text-white mx-auto mt-0.5" strokeWidth={3} />
+          <Check className="w-3 h-3 text-df-primary mx-auto mt-0.5" strokeWidth={3} />
         )}
       </div>
       

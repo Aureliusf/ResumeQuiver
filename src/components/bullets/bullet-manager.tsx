@@ -8,17 +8,61 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { BulletCheckbox } from './bullet-checkbox';
 import { showSuccessToast } from '@/lib/toast';
 
+type SectionKind = 'experience' | 'project';
+
+const sectionToneStyles: Record<SectionKind, {
+  badgeLabel: string;
+  groupLabel: string;
+  container: string;
+  header: string;
+  badge: string;
+  count: string;
+  action: string;
+  divider: string;
+}> = {
+  experience: {
+    badgeLabel: 'Experience',
+    groupLabel: 'Work Experience',
+    container: 'border-df-accent-cyan/20',
+    header: 'bg-df-accent-cyan/5',
+    badge: 'border border-df-accent-cyan/25 bg-df-accent-cyan/10 text-df-accent-cyan',
+    count: 'border border-df-accent-cyan/25 bg-df-accent-cyan/10 text-df-accent-cyan',
+    action: 'hover:text-df-accent-cyan focus:outline-df-accent-cyan',
+    divider: 'from-df-accent-cyan/40',
+  },
+  project: {
+    badgeLabel: 'Project',
+    groupLabel: 'Projects',
+    container: 'border-df-accent-red/20',
+    header: 'bg-df-accent-red/5',
+    badge: 'border border-df-accent-red/25 bg-df-accent-red/10 text-df-accent-red',
+    count: 'border border-df-accent-red/25 bg-df-accent-red/10 text-df-accent-red',
+    action: 'hover:text-df-accent-red focus:outline-df-accent-red',
+    divider: 'from-df-accent-red/40',
+  },
+};
+
 interface BulletItemProps {
   bullet: { id: string; text: string; tags?: string[]; selected?: boolean };
   parentId: string;
   parentTitle: string;
   role?: string;
   company?: string;
+  kind: SectionKind;
   isSelected: boolean;
   onToggle: () => void;
 }
 
-const BulletItem = memo(function BulletItem({ bullet, parentId, parentTitle, role, company, isSelected, onToggle }: BulletItemProps) {
+const BulletItem = memo(function BulletItem({
+  bullet,
+  parentId,
+  parentTitle,
+  role,
+  company,
+  kind,
+  isSelected,
+  onToggle,
+}: BulletItemProps) {
   const { updateBullet } = useResume();
   const { apiKey, baseUrl, model } = useSettings();
   const [showRewriteModal, setShowRewriteModal] = useState(false);
@@ -66,6 +110,7 @@ const BulletItem = memo(function BulletItem({ bullet, parentId, parentTitle, rol
           bullet={bullet}
           isSelected={isSelected}
           onToggle={onToggle}
+          tone={kind}
         />
         
         {/* AI Rewrite Button */}
@@ -143,6 +188,7 @@ const BulletItem = memo(function BulletItem({ bullet, parentId, parentTitle, rol
 });
 
 interface SectionCardProps {
+  kind: SectionKind;
   title: string;
   subtitle?: string;
   bullets: { id: string; text: string; tags?: string[]; selected?: boolean }[];
@@ -157,6 +203,7 @@ interface SectionCardProps {
 }
 
 const SectionCard = memo(function SectionCard({
+  kind,
   title,
   subtitle,
   bullets,
@@ -170,13 +217,17 @@ const SectionCard = memo(function SectionCard({
   isBulletSelected,
 }: SectionCardProps) {
   const allSelected = selectedCount === bullets.length && bullets.length > 0;
+  const tone = sectionToneStyles[kind];
 
   return (
-    <section className="bg-df-elevated border border-df-border">
+    <section className={`bg-df-elevated border ${tone.container}`}>
       {/* Header */}
-      <header className="p-3 border-b border-df-border bg-df-surface">
-        <div className="flex justify-between items-start">
-          <div>
+      <header className={`p-4 border-b border-df-border ${tone.header}`}>
+        <div className="flex justify-between items-start gap-4">
+          <div className="min-w-0">
+            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${tone.badge}`}>
+              {tone.badgeLabel}
+            </span>
             <h4 className="font-space font-medium text-df-text text-sm">
               {title}
             </h4>
@@ -184,7 +235,7 @@ const SectionCard = memo(function SectionCard({
               <p className="text-xs text-df-text-secondary mt-0.5">{subtitle}</p>
             )}
           </div>
-          <span className="text-xs text-df-text-secondary font-mono">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-mono ${tone.count}`}>
             {selectedCount} / {bullets.length}
           </span>
         </div>
@@ -194,7 +245,7 @@ const SectionCard = memo(function SectionCard({
           <button
             onClick={onSelectAll}
             disabled={allSelected}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-df-text-secondary hover:text-df-accent-cyan disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2 rounded"
+            className={`flex items-center gap-1 px-2 py-1 text-xs text-df-text-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-2 focus:outline-offset-2 rounded ${tone.action}`}
             aria-label={`Select all bullets for ${title}`}
           >
             <CheckSquare className="w-3 h-3" aria-hidden="true" />
@@ -203,7 +254,7 @@ const SectionCard = memo(function SectionCard({
           <button
             onClick={onDeselectAll}
             disabled={selectedCount === 0}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-df-text-secondary hover:text-df-accent-red disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-2 focus:outline-df-accent-red focus:outline-offset-2 rounded"
+            className="flex items-center gap-1 px-2 py-1 text-xs text-df-text-secondary hover:text-df-text disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-2 focus:outline-df-accent-cyan focus:outline-offset-2 rounded"
             aria-label={`Deselect all bullets for ${title}`}
           >
             <Square className="w-3 h-3" aria-hidden="true" />
@@ -222,6 +273,7 @@ const SectionCard = memo(function SectionCard({
               parentTitle={title}
               role={role}
               company={company}
+              kind={kind}
               isSelected={isBulletSelected(bullet.id)}
               onToggle={() => onToggleBullet(bullet.id)}
             />
@@ -258,6 +310,16 @@ export const BulletManager = memo(function BulletManager() {
 
   const totalBullets = getTotalBulletCount();
   const selectedCount = getSelectedBulletCount();
+  const experienceBullets = resume?.experience.reduce((acc, exp) => acc + exp.bullets.length, 0) || 0;
+  const projectBullets = resume?.projects.reduce((acc, proj) => acc + proj.bullets.length, 0) || 0;
+  const selectedExperienceCount = resume?.experience.reduce(
+    (acc, exp) => acc + (selectedBullets.get(exp.id)?.length || 0),
+    0
+  ) || 0;
+  const selectedProjectCount = resume?.projects.reduce(
+    (acc, proj) => acc + (selectedBullets.get(proj.id)?.length || 0),
+    0
+  ) || 0;
 
   return (
     <div className="bg-df-surface border-t border-df-border">
@@ -283,38 +345,70 @@ export const BulletManager = memo(function BulletManager() {
 
       {isExpanded && (
         <div id="bullet-library-content" className="h-96 border-t border-df-border overflow-y-auto px-8 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {resume?.experience.map((exp) => (
-              <SectionCard
-                key={exp.id}
-                title={`${exp.role} @ ${exp.company}`}
-                subtitle={`${exp.startDate} - ${exp.endDate || 'Present'}`}
-                bullets={exp.bullets}
-                parentId={exp.id}
-                role={exp.role}
-                company={exp.company}
-                selectedCount={selectedBullets.get(exp.id)?.length || 0}
-                onToggleBullet={(bulletId) => toggleBullet(exp.id, bulletId)}
-                onSelectAll={() => selectAllBullets(exp.id)}
-                onDeselectAll={() => deselectAllBullets(exp.id)}
-                isBulletSelected={(bulletId) => isBulletSelected(exp.id, bulletId)}
-              />
-            ))}
-            
-            {resume?.projects.map((proj) => (
-              <SectionCard
-                key={proj.id}
-                title={proj.name}
-                subtitle={proj.technologies.join(', ')}
-                bullets={proj.bullets}
-                parentId={proj.id}
-                selectedCount={selectedBullets.get(proj.id)?.length || 0}
-                onToggleBullet={(bulletId) => toggleBullet(proj.id, bulletId)}
-                onSelectAll={() => selectAllBullets(proj.id)}
-                onDeselectAll={() => deselectAllBullets(proj.id)}
-                isBulletSelected={(bulletId) => isBulletSelected(proj.id, bulletId)}
-              />
-            ))}
+          <div className="space-y-8">
+            {resume?.experience.length ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] ${sectionToneStyles.experience.badge}`}>
+                    {sectionToneStyles.experience.groupLabel}
+                  </span>
+                  <span className="text-xs text-df-text-muted">
+                    {selectedExperienceCount} / {experienceBullets} selected
+                  </span>
+                  <div className={`h-px flex-1 bg-gradient-to-r ${sectionToneStyles.experience.divider} to-transparent`} />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {resume.experience.map((exp) => (
+                    <SectionCard
+                      key={exp.id}
+                      kind="experience"
+                      title={`${exp.role} @ ${exp.company}`}
+                      subtitle={`${exp.startDate} - ${exp.endDate || 'Present'}`}
+                      bullets={exp.bullets}
+                      parentId={exp.id}
+                      role={exp.role}
+                      company={exp.company}
+                      selectedCount={selectedBullets.get(exp.id)?.length || 0}
+                      onToggleBullet={(bulletId) => toggleBullet(exp.id, bulletId)}
+                      onSelectAll={() => selectAllBullets(exp.id)}
+                      onDeselectAll={() => deselectAllBullets(exp.id)}
+                      isBulletSelected={(bulletId) => isBulletSelected(exp.id, bulletId)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {resume?.projects.length ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] ${sectionToneStyles.project.badge}`}>
+                    {sectionToneStyles.project.groupLabel}
+                  </span>
+                  <span className="text-xs text-df-text-muted">
+                    {selectedProjectCount} / {projectBullets} selected
+                  </span>
+                  <div className={`h-px flex-1 bg-gradient-to-r ${sectionToneStyles.project.divider} to-transparent`} />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {resume.projects.map((proj) => (
+                    <SectionCard
+                      key={proj.id}
+                      kind="project"
+                      title={proj.name}
+                      subtitle={proj.technologies.join(', ')}
+                      bullets={proj.bullets}
+                      parentId={proj.id}
+                      selectedCount={selectedBullets.get(proj.id)?.length || 0}
+                      onToggleBullet={(bulletId) => toggleBullet(proj.id, bulletId)}
+                      onSelectAll={() => selectAllBullets(proj.id)}
+                      onDeselectAll={() => deselectAllBullets(proj.id)}
+                      isBulletSelected={(bulletId) => isBulletSelected(proj.id, bulletId)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       )}
