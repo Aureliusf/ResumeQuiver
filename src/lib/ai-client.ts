@@ -23,6 +23,68 @@ export interface StreamCallbacks {
 }
 
 const DEFAULT_TIMEOUT = 60000; // 60 seconds
+const MODEL_DISCOVERY_TIMEOUT = 10000; // 10 seconds
+
+function normalizeBaseUrl(baseUrl: string): string {
+  return baseUrl.replace(/\/$/, '');
+}
+
+function getAuthHeaders(apiKey: string): HeadersInit {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${apiKey}`,
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function getModelId(model: unknown): string | null {
+  if (typeof model === 'string') {
+    const trimmedModel = model.trim();
+    return trimmedModel || null;
+  }
+
+  if (!isRecord(model)) {
+    return null;
+  }
+
+  const potentialId = [model.id, model.name, model.model].find((value) => typeof value === 'string');
+
+  if (typeof potentialId !== 'string') {
+    return null;
+  }
+
+  const trimmedModel = potentialId.trim();
+  return trimmedModel || null;
+}
+
+function extractModelIds(payload: unknown): string[] {
+  const sources: unknown[] = [];
+
+  if (Array.isArray(payload)) {
+    sources.push(...payload);
+  }
+
+  if (isRecord(payload)) {
+    if (Array.isArray(payload.data)) {
+      sources.push(...payload.data);
+    }
+
+    if (Array.isArray(payload.models)) {
+      sources.push(...payload.models);
+    }
+  }
+
+  return Array.from(
+    new Set(
+      sources
+        .map(getModelId)
+        .filter((modelId): modelId is string => Boolean(modelId))
+    )
+  );
+}
 
 function createAIError(message: string, type: AIErrorType, statusCode?: number): AIError {
   const error = new Error(message) as AIError;
@@ -31,6 +93,78 @@ function createAIError(message: string, type: AIErrorType, statusCode?: number):
     error.statusCode = statusCode;
   }
   return error;
+}
+
+export async function fetchAvailableModels(
+  config: Pick<AIClientConfig, 'apiKey' | 'baseUrl'>,
+  abortSignal?: AbortSignal
+): Promise<string[]> {
+  const { apiKey, baseUrl } = config;
+
+  if (!apiKey.trim()) {
+    throw createAIError('API key is required', 'invalid-key');
+  }
+
+  if (!baseUrl.trim()) {
+    throw createAIError('Base URL is required', 'invalid-key');
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, MODEL_DISCOVERY_TIMEOUT);
+
+  if (abortSignal) {
+    abortSignal.addEventListener('abort', () => {
+      controller.abort();
+    });
+  }
+
+  try {
+    const response = await fetch(`${normalizeBaseUrl(baseUrl)}/models`, {
+      method: 'GET',
+      headers: getAuthHeaders(apiKey),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const statusCode = response.status;
+      let errorType: AIErrorType = 'unknown';
+      let errorMessage = `HTTP error ${statusCode}`;
+
+      if (statusCode === 401) {
+        errorType = 'invalid-key';
+        errorMessage = 'Invalid API key. Please check your settings.';
+      } else if (statusCode === 429) {
+        errorType = 'rate-limit';
+        errorMessage = 'Rate limit exceeded. Please try again later.';
+      } else if (statusCode >= 500) {
+        errorType = 'server-error';
+        errorMessage = 'Server error. Please try again later.';
+      }
+
+      throw createAIError(errorMessage, errorType, statusCode);
+    }
+
+    const payload = await response.json();
+    return extractModelIds(payload);
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw createAIError('Request was aborted', 'timeout');
+      }
+
+      if (error.message.includes('fetch')) {
+        throw createAIError('Network error. Please check your connection.', 'network-error');
+      }
+    }
+
+    throw error;
+  }
 }
 
 export async function streamCompletion(
@@ -66,12 +200,9 @@ export async function streamCompletion(
   }
 
   try {
-    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
+    const response = await fetch(`${normalizeBaseUrl(baseUrl)}/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
+      headers: getAuthHeaders(apiKey),
       body: JSON.stringify({
         model,
         messages,
