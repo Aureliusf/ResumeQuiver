@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect } from 'react';
-import { ZoomIn, ZoomOut, Maximize2, Download, RefreshCw, AlertTriangle } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Download, RefreshCw, AlertTriangle, Moon, Sun } from 'lucide-react';
 import { ResumePreview } from '@/components/preview/resume-preview';
 import { useResume } from '@/contexts/resume-context';
 import { generatePDF, downloadPDF, getPDFFilename } from '@/lib/pdf-export';
@@ -11,10 +11,11 @@ import { showSuccessToast, showErrorToast } from '@/lib/toast';
 const PAGE_HEIGHT = 10 * 96; // 960px
 
 function PreviewPanelComponent() {
-  const { resume, isValid } = useResume();
+  const { resume, selectedBullets, isValid } = useResume();
   const [zoom, setZoom] = useState(0.85);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPreviewDark, setIsPreviewDark] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const resumeRef = useRef<HTMLDivElement>(null);
@@ -47,7 +48,7 @@ function PreviewPanelComponent() {
 
     setIsGenerating(true);
     try {
-      const blob = await generatePDF(resume, new Map());
+      const blob = await generatePDF(resume, selectedBullets);
       const filename = getPDFFilename(resume);
       downloadPDF(blob, filename);
       showSuccessToast.pdfGenerated();
@@ -99,7 +100,7 @@ function PreviewPanelComponent() {
         <div className="px-6 py-2 bg-df-accent-red/10 border-b border-df-accent-red/30 flex items-center gap-3 shrink-0">
           <AlertTriangle className="w-4 h-4 text-df-accent-red shrink-0" />
           <span className="text-sm text-df-accent-red font-medium">
-            Content exceeds 1 page ({overflowPercentage}% overflow)
+            Estimated overflow: {overflowPercentage}% past one page
           </span>
           <span className="text-xs text-df-text-muted ml-auto">
             Consider removing bullets or condensing content
@@ -131,6 +132,19 @@ function PreviewPanelComponent() {
               <ZoomIn className="w-4 h-4" />
             </button>
           </div>
+          <button
+            onClick={() => setIsPreviewDark(prev => !prev)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-fluid ${
+              isPreviewDark
+                ? 'bg-df-accent-cyan/20 text-df-accent-cyan'
+                : 'bg-df-elevated text-df-text-secondary hover:text-df-text hover:bg-df-elevated-2'
+            }`}
+            title={isPreviewDark ? 'Switch preview to light mode' : 'Switch preview to dark mode'}
+            aria-pressed={isPreviewDark}
+          >
+            {isPreviewDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            {isPreviewDark ? 'Light' : 'Dark'}
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -187,7 +201,7 @@ function PreviewPanelComponent() {
               transformOrigin: 'top left',
             }}
           >
-            <ResumePreview ref={resumeRef} />
+            <ResumePreview ref={resumeRef} isDarkMode={isPreviewDark} />
           </div>
         </div>
       </div>

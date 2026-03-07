@@ -4,7 +4,7 @@ import { YamlEditor } from './yaml-editor';
 import { AIConfigBar } from './ai-config-bar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { showSuccessToast, showErrorToast } from '@/lib/toast';
-import { FileText, Save, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
+import { FileText, Save, AlertCircle, Sparkles } from 'lucide-react';
 
 function EditorPanelComponent() {
   const { yamlText, updateYaml, isValid, saveResume } = useResume();
@@ -38,19 +38,19 @@ function EditorPanelComponent() {
         </div>
         
         <div className="flex items-center gap-3">
-          {/* Validation Status */}
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium ${
-            isValid 
-              ? 'bg-df-accent-green/10 text-df-accent-green' 
-              : 'bg-df-accent-red/10 text-df-accent-red'
-          }`}>
-            {isValid ? (
-              <CheckCircle2 className="w-3.5 h-3.5" />
-            ) : (
+          {/* Validation Status - Only shows when invalid */}
+          {!isValid && (
+            <div 
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium"
+              style={{ 
+                backgroundColor: 'rgba(255, 51, 102, 0.1)', 
+                color: '#FF3366' 
+              }}
+            >
               <AlertCircle className="w-3.5 h-3.5" />
-            )}
-            {isValid ? 'Valid' : 'Invalid'}
-          </div>
+              Invalid
+            </div>
+          )}
           
           {/* Save Button */}
           <button

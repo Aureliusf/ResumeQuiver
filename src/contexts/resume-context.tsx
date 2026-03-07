@@ -28,44 +28,50 @@ type ResumeContextValue = ResumeContextState & ResumeContextActions;
 
 const ResumeContext = createContext<ResumeContextValue | null>(null);
 
-function collectAllBullets(resume: Resume): Map<string, string[]> {
-  const bullets = new Map<string, string[]>();
-
-  resume.experience.forEach((exp) => {
-    const bulletIds = exp.bullets.map((b) => b.id);
-    if (bulletIds.length > 0) {
-      bullets.set(exp.id, bulletIds);
-    }
-  });
-
-  resume.projects.forEach((proj) => {
-    const bulletIds = proj.bullets.map((b) => b.id);
-    if (bulletIds.length > 0) {
-      bullets.set(proj.id, bulletIds);
-    }
-  });
-
-  return bullets;
-}
-
 function collectSelectedBullets(resume: Resume): Map<string, string[]> {
   const bullets = new Map<string, string[]>();
 
   resume.experience.forEach((exp) => {
-    const selectedIds = exp.bullets.filter((b) => b.selected).map((b) => b.id);
+    const selectedIds = exp.bullets.filter((b) => b.selected !== false).map((b) => b.id);
     if (selectedIds.length > 0) {
       bullets.set(exp.id, selectedIds);
     }
   });
 
   resume.projects.forEach((proj) => {
-    const selectedIds = proj.bullets.filter((b) => b.selected).map((b) => b.id);
+    const selectedIds = proj.bullets.filter((b) => b.selected !== false).map((b) => b.id);
     if (selectedIds.length > 0) {
       bullets.set(proj.id, selectedIds);
     }
   });
 
   return bullets;
+}
+
+function applySelectionMapToResume(resume: Resume, selectedMap: Map<string, string[]>): Resume {
+  return {
+    ...resume,
+    experience: resume.experience.map((exp) => {
+      const selectedIds = selectedMap.get(exp.id);
+      return {
+        ...exp,
+        bullets: exp.bullets.map((bullet) => ({
+          ...bullet,
+          selected: selectedIds ? selectedIds.includes(bullet.id) : bullet.selected !== false,
+        })),
+      };
+    }),
+    projects: resume.projects.map((proj) => {
+      const selectedIds = selectedMap.get(proj.id);
+      return {
+        ...proj,
+        bullets: proj.bullets.map((bullet) => ({
+          ...bullet,
+          selected: selectedIds ? selectedIds.includes(bullet.id) : bullet.selected !== false,
+        })),
+      };
+    }),
+  };
 }
 
 export function ResumeProvider({ children }: { children: React.ReactNode }) {
@@ -88,6 +94,16 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const syncSelectionToResume = useCallback((nextMap: Map<string, string[]>) => {
+    setResume((prevResume) => {
+      if (!prevResume) return prevResume;
+      const nextResume = applySelectionMapToResume(prevResume, nextMap);
+      setYamlText(stringifyYaml(nextResume));
+      setIsValid(true);
+      return nextResume;
+    });
+  }, []);
+
   const toggleBullet = useCallback((parentId: string, bulletId: string) => {
     setSelectedBullets((prev) => {
       const newMap = new Map(prev);
@@ -102,9 +118,10 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         newMap.set(parentId, [...current, bulletId]);
       }
 
+      syncSelectionToResume(newMap);
       return newMap;
     });
-  }, []);
+  }, [syncSelectionToResume]);
 
   const selectAllBullets = useCallback((parentId: string) => {
     setSelectedBullets((prev) => {
@@ -122,48 +139,60 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         newMap.set(parentId, proj.bullets.map((b) => b.id));
       }
 
+      syncSelectionToResume(newMap);
       return newMap;
     });
-  }, [resume]);
+  }, [resume, syncSelectionToResume]);
 
   const deselectAllBullets = useCallback((parentId: string) => {
     setSelectedBullets((prev) => {
       const newMap = new Map(prev);
       newMap.set(parentId, []);
+      syncSelectionToResume(newMap);
       return newMap;
     });
-  }, []);
+  }, [syncSelectionToResume]);
 
   const updateBullet = useCallback((parentId: string, bulletId: string, newText: string) => {
-    if (!resume) return;
+    setResume((prevResume) => {
+      if (!prevResume) return prevResume;
 
-    // Find the parent (experience or project)
-    const exp = resume.experience.find((e) => e.id === parentId);
-    const proj = resume.projects.find((p) => p.id === parentId);
-    
-    if (!exp && !proj) return;
-    
-    // Find the bullet
-    const bullets = exp ? exp.bullets : proj!.bullets;
-    const bullet = bullets.find((b) => b.id === bulletId);
-    
-    if (!bullet) return;
-    
-    // Update the YAML text
-    const oldText = bullet.text;
-    const lines = yamlText.split('\n');
-    
-    // Find the line containing the bullet text
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes(oldText)) {
-        lines[i] = lines[i].replace(oldText, newText);
-        break;
-      }
-    }
-    
-    const newYaml = lines.join('\n');
-    updateYaml(newYaml);
-  }, [resume, yamlText, updateYaml]);
+      let updated = false;
+
+      const nextResume: Resume = {
+        ...prevResume,
+        experience: prevResume.experience.map((exp) => {
+          if (exp.id !== parentId) return exp;
+          return {
+            ...exp,
+            bullets: exp.bullets.map((bullet) => {
+              if (bullet.id !== bulletId) return bullet;
+              updated = true;
+              return { ...bullet, text: newText };
+            }),
+          };
+        }),
+        projects: prevResume.projects.map((proj) => {
+          if (proj.id !== parentId) return proj;
+          return {
+            ...proj,
+            bullets: proj.bullets.map((bullet) => {
+              if (bullet.id !== bulletId) return bullet;
+              updated = true;
+              return { ...bullet, text: newText };
+            }),
+          };
+        }),
+      };
+
+      if (!updated) return prevResume;
+
+      setYamlText(stringifyYaml(nextResume));
+      setSelectedBullets(collectSelectedBullets(nextResume));
+      setIsValid(true);
+      return nextResume;
+    });
+  }, []);
 
   const updateSummary = useCallback((newSummary: string) => {
     if (!resume) return;
@@ -262,7 +291,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
       setCurrentResumeId(loaded.id);
       setYamlText(stringifyYaml(loaded));
       setIsValid(true);
-      setSelectedBullets(collectAllBullets(loaded));
+      setSelectedBullets(collectSelectedBullets(loaded));
     }
   }, []);
 
@@ -290,7 +319,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     setResume(sampleResume);
     setCurrentResumeId(sampleResume.id);
     setIsValid(true);
-    setSelectedBullets(collectAllBullets(sampleResume));
+    setSelectedBullets(collectSelectedBullets(sampleResume));
   }, []);
 
   const value = useMemo(

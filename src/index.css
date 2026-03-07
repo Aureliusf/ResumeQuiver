@@ -6,6 +6,28 @@
 /* Resume Preview Styles */
 @import './styles/resume.css';
 
+/* Tailwind v4 theme tokens for custom Direct Flash utilities */
+@theme {
+  --color-df-primary: var(--df-primary);
+  --color-df-surface: var(--df-surface);
+  --color-df-elevated: var(--df-elevated);
+  --color-df-elevated-2: var(--df-elevated-2);
+  --color-df-text: var(--df-text);
+  --color-df-text-secondary: var(--df-text-secondary);
+  --color-df-text-muted: var(--df-text-muted);
+  --color-df-accent-red: var(--df-accent-red);
+  --color-df-accent-cyan: var(--df-accent-cyan);
+  --color-df-accent-purple: var(--df-accent-purple);
+  --color-df-accent-green: var(--df-accent-green);
+  --color-df-accent-yellow: var(--df-accent-yellow);
+  --color-df-accent-amber: var(--df-accent-amber);
+  --color-df-border: var(--df-border);
+  --color-df-border-subtle: var(--df-border-subtle);
+
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-space: "Space Grotesk", sans-serif;
+}
+
 /* CSS Variables - Direct Flash Theme (default) */
 :root {
   --df-primary: #0A0A0A;

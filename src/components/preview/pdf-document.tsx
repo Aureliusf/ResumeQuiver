@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from '@react-pdf/renderer';
 import type { Resume } from '@/types/resume';
+import { formatDateRange } from '@/lib/date-utils';
 
 // Register Times Roman font (built into react-pdf)
 // Times-Roman is available by default
@@ -18,51 +19,57 @@ interface PDFDocumentProps {
 // Create styles that match Jake's Resume template
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 24,
+    paddingTop: 32,
     paddingHorizontal: 36,
     paddingBottom: 36,
-    fontFamily: 'Helvetica',
-    fontSize: 12,
+    fontFamily: 'Times-Roman',
+    fontSize: 10.5,
     lineHeight: 1.4,
     backgroundColor: '#ffffff',
   },
   header: {
     textAlign: 'center',
-    marginBottom: 14,
+    marginBottom: 10.5,
   },
   name: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    fontVariant: 'small-caps',
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    letterSpacing: 0.9,
+    marginBottom: 5.4,
+    textTransform: 'uppercase',
   },
   contact: {
-    fontSize: 10,
+    fontSize: 9,
     fontStyle: 'italic',
     color: '#333333',
   },
   section: {
-    marginTop: 14,
-    marginBottom: 11,
+    marginTop: 10.5,
+    marginBottom: 8.4,
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
-    fontVariant: 'small-caps',
     letterSpacing: 0.8,
     borderBottomWidth: 1,
     borderBottomColor: '#000000',
     paddingBottom: 2,
-    marginBottom: 8,
+    marginBottom: 5.25,
+    textTransform: 'uppercase',
   },
-  entry: {
-    marginBottom: 8,
+  educationEntry: {
+    marginBottom: 6.3,
+  },
+  experienceEntry: {
+    marginBottom: 8.4,
+  },
+  projectEntry: {
+    marginBottom: 6.3,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'baseline',
   },
   rowLeft: {
     flex: 1,
@@ -81,7 +88,7 @@ const styles = StyleSheet.create({
   },
   dates: {
     fontStyle: 'italic',
-    fontSize: 11,
+    fontSize: 9.5,
   },
   role: {
     fontWeight: 'bold',
@@ -94,15 +101,15 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   bullets: {
-    marginTop: 4,
-    marginLeft: 14,
+    marginTop: 3,
+    marginLeft: 13,
   },
   bullet: {
-    fontSize: 12,
-    marginBottom: 2,
+    fontSize: 10,
+    marginBottom: 1.5,
   },
   bulletBullet: {
-    width: 6,
+    width: 7,
     marginRight: 4,
   },
   bulletRow: {
@@ -143,20 +150,6 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
   if (resume.basics.linkedin) contactItems.push(resume.basics.linkedin);
   if (resume.basics.github) contactItems.push(resume.basics.github);
 
-  const formatDateRange = (startDate: string, endDate: string): string => {
-    const formatDate = (date: string): string => {
-      if (!date || date === 'Present') return 'Present';
-      const [year, month] = date.split('-');
-      const months = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
-      const monthIdx = parseInt(month, 10) - 1;
-      return `${months[monthIdx]} ${year}`;
-    };
-
-    const start = formatDate(startDate);
-    const end = endDate === 'Present' ? 'Present' : formatDate(endDate);
-    return `${start} - ${end}`;
-  };
-
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
@@ -173,7 +166,7 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Education</Text>
             {resume.education.map((edu) => (
-              <View key={edu.id} style={styles.entry}>
+              <View key={edu.id} style={styles.educationEntry}>
                 <View style={styles.row}>
                   <View style={styles.rowLeft}>
                     <Text>
@@ -200,7 +193,7 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
               if (selected.length === 0) return null;
 
               return (
-                <View key={exp.id} style={styles.entry}>
+                <View key={exp.id} style={styles.experienceEntry}>
                   <View style={styles.row}>
                     <Text style={[styles.rowLeft, styles.role]}>{exp.role}</Text>
                     <Text style={[styles.rowRight, styles.dates]}>
@@ -235,7 +228,7 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
               if (selected.length === 0) return null;
 
               return (
-                <View key={proj.id} style={styles.entry}>
+                <View key={proj.id} style={styles.projectEntry}>
                   <View style={styles.row}>
                     <View style={styles.rowLeft}>
                       <Text>

@@ -3,13 +3,11 @@
  * Professional paper styling with proper print support
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
-
 /* Resume Paper Container */
 .resume-paper {
   background: white;
   color: black;
-  font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+  font-family: 'Times New Roman', Times, Georgia, serif;
   font-size: 10.5pt;
   line-height: 1.4;
   max-width: 8.5in;
@@ -201,4 +199,18 @@
     0 0 0 1px rgba(0, 0, 0, 0.1),
     0 10px 20px -5px rgba(0, 0, 0, 0.3),
     0 4px 8px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Preview-only flash guard mode (does not affect export) */
+.resume-paper-preview-dark {
+  background: #101214;
+  color: #f5f7fa;
+}
+
+.resume-paper-preview-dark .resume-contact {
+  color: #c2c9d1;
+}
+
+.resume-paper-preview-dark .resume-section-title {
+  border-bottom-color: #d8dce2;
 }

@@ -3,7 +3,11 @@ import { formatDateRange } from '@/lib/date-utils';
 import { forwardRef } from 'react';
 import '@/styles/resume.css';
 
-export const ResumePreview = forwardRef<HTMLDivElement>((_, ref) => {
+interface ResumePreviewProps {
+  isDarkMode?: boolean;
+}
+
+export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ isDarkMode = false }, ref) => {
   const { resume, selectedBullets } = useResume();
 
   if (!resume) {
@@ -14,9 +18,12 @@ export const ResumePreview = forwardRef<HTMLDivElement>((_, ref) => {
     );
   }
 
-  const getSelectedBullets = (parentId: string, bullets: { id: string; text: string }[]) => {
-    const selectedIds = selectedBullets.get(parentId) || [];
-    return bullets.filter((b) => selectedIds.includes(b.id));
+  const getSelectedBullets = (parentId: string, bullets: { id: string; text: string; selected?: boolean }[]) => {
+    const selectedIds = selectedBullets.get(parentId);
+    if (selectedIds) {
+      return bullets.filter((b) => selectedIds.includes(b.id));
+    }
+    return bullets.filter((b) => b.selected !== false);
   };
 
   // Build contact line
@@ -29,7 +36,7 @@ export const ResumePreview = forwardRef<HTMLDivElement>((_, ref) => {
   if (resume.basics.github) contactItems.push(resume.basics.github);
 
   return (
-    <div ref={ref} className="resume-paper resume-paper-preview">
+    <div ref={ref} className={`resume-paper resume-paper-preview${isDarkMode ? ' resume-paper-preview-dark' : ''}`}>
       {/* Header */}
       <header className="resume-header">
         <h1 className="resume-name">{resume.basics.name}</h1>

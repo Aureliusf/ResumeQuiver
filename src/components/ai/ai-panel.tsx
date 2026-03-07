@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useSettings } from '@/contexts/settings-context';
 import { RewriteBullet } from './rewrite-bullet';
 import { GenerateBullets } from './generate-bullets';
-import { ImproveSummary } from './improve-summary';
-import { Wand2, Sparkles, FileText, Zap } from 'lucide-react';
+import { Wand2, Sparkles, Zap } from 'lucide-react';
 
-type TabId = 'rewrite' | 'generate' | 'improve';
+type TabId = 'rewrite' | 'generate';
 
 interface Tab {
   id: TabId;
@@ -35,13 +34,6 @@ export function AIPanel() {
       icon: <Sparkles className="w-4 h-4" />,
       component: <GenerateBullets />,
       color: 'df-accent-purple',
-    },
-    {
-      id: 'improve',
-      label: 'Summary',
-      icon: <FileText className="w-4 h-4" />,
-      component: <ImproveSummary />,
-      color: 'df-accent-cyan',
     },
   ];
 
