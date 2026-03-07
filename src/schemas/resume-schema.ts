@@ -16,6 +16,7 @@ export const educationSchema = z.object({
   location: z.string(),
   degree: z.string(),
   dates: z.string(),
+  selected: z.boolean().optional().default(true),
 });
 
 // Experience schema
@@ -44,6 +45,7 @@ export const projectSchema = z.object({
 export const skillCategorySchema = z.object({
   category: z.string(),
   items: z.array(z.string()),
+  selected: z.boolean().optional().default(true),
 });
 
 // Basics schema - all fields optional except name

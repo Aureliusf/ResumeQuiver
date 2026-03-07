@@ -99,6 +99,7 @@ function ResponsiveAppShellComponent() {
         <Header 
           activeTab={activeTab} 
           onTabChange={setActiveTab}
+          onOpenHelp={() => setIsHelpModalOpen(true)}
         />
       </div>
       

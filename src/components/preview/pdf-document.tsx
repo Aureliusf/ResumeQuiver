@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
 } from '@react-pdf/renderer';
+import { getBasicsFieldEntries, getVisibleEducationEntries, getVisibleSkillCategories } from '@/lib/bullet-library';
 import type { Resume } from '@/types/resume';
 import { formatDateRange } from '@/lib/date-utils';
 
@@ -142,13 +143,9 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
   };
 
   // Build contact line
-  const contactItems: string[] = [];
-  if (resume.basics.email) contactItems.push(resume.basics.email);
-  if (resume.basics.phone) contactItems.push(resume.basics.phone);
-  if (resume.basics.location) contactItems.push(resume.basics.location);
-  if (resume.basics.website) contactItems.push(resume.basics.website);
-  if (resume.basics.linkedin) contactItems.push(resume.basics.linkedin);
-  if (resume.basics.github) contactItems.push(resume.basics.github);
+  const contactItems = getBasicsFieldEntries(resume.basics).map((entry) => entry.value);
+  const visibleEducation = getVisibleEducationEntries(resume.education);
+  const visibleSkills = getVisibleSkillCategories(resume.skills);
 
   return (
     <Document>
@@ -162,10 +159,10 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
         </View>
 
         {/* Education */}
-        {resume.education.length > 0 && (
+        {visibleEducation.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Education</Text>
-            {resume.education.map((edu) => (
+            {visibleEducation.map((edu) => (
               <View key={edu.id} style={styles.educationEntry}>
                 <View style={styles.row}>
                   <View style={styles.rowLeft}>
@@ -257,11 +254,11 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
         )}
 
         {/* Technical Skills */}
-        {resume.skills.length > 0 && (
+        {visibleSkills.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Technical Skills</Text>
             <View>
-              {resume.skills.map((skill) => (
+              {visibleSkills.map((skill) => (
                 <View key={skill.category} style={styles.skillRow}>
                   <Text>
                     <Text style={styles.skillCategory}>{skill.category}:</Text>

@@ -1,8 +1,12 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { sampleResume, createEmptyResume } from '@/data/sample-resume';
+import { moveArrayItem, reorderBasicsFields, type BasicFieldKey, type MoveDirection } from '@/lib/bullet-library';
 import { storage } from '@/lib/storage';
 import { parseYaml, stringifyYaml } from '@/lib/yaml-utils';
 import type { Resume } from '@/types/resume';
+
+type ToggleableSectionKind = 'education' | 'skills';
+type MovableSectionKind = 'basics' | ToggleableSectionKind | 'experience' | 'project';
 
 interface ResumeContextState {
   yamlText: string;
@@ -17,6 +21,8 @@ interface ResumeContextActions {
   toggleBullet: (parentId: string, bulletId: string) => void;
   selectAllBullets: (parentId: string) => void;
   deselectAllBullets: (parentId: string) => void;
+  toggleSectionItem: (sectionKind: ToggleableSectionKind, itemId: string | number) => void;
+  moveSectionItem: (sectionKind: MovableSectionKind, itemId: string | number, direction: MoveDirection) => void;
   updateBullet: (parentId: string, bulletId: string, newText: string) => void;
   updateSummary: (newSummary: string) => void;
   saveResume: () => void;
@@ -104,6 +110,13 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const commitResumeUpdate = useCallback((nextResume: Resume) => {
+    setYamlText(stringifyYaml(nextResume));
+    setSelectedBullets(collectSelectedBullets(nextResume));
+    setIsValid(true);
+    return nextResume;
+  }, []);
+
   const toggleBullet = useCallback((parentId: string, bulletId: string) => {
     setSelectedBullets((prev) => {
       const newMap = new Map(prev);
@@ -153,6 +166,131 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     });
   }, [syncSelectionToResume]);
 
+  const toggleSectionItem = useCallback((sectionKind: ToggleableSectionKind, itemId: string | number) => {
+    setResume((prevResume) => {
+      if (!prevResume) return prevResume;
+
+      if (sectionKind === 'education' && typeof itemId === 'string') {
+        let updated = false;
+        const nextResume: Resume = {
+          ...prevResume,
+          education: prevResume.education.map((entry) => {
+            if (entry.id !== itemId) return entry;
+            updated = true;
+            return {
+              ...entry,
+              selected: entry.selected === false,
+            };
+          }),
+        };
+
+        return updated ? commitResumeUpdate(nextResume) : prevResume;
+      }
+
+      if (sectionKind === 'skills') {
+        const index = typeof itemId === 'number' ? itemId : Number(itemId);
+        if (!Number.isInteger(index) || index < 0 || index >= prevResume.skills.length) {
+          return prevResume;
+        }
+
+        const nextResume: Resume = {
+          ...prevResume,
+          skills: prevResume.skills.map((entry, entryIndex) => {
+            if (entryIndex !== index) return entry;
+            return {
+              ...entry,
+              selected: entry.selected === false,
+            };
+          }),
+        };
+
+        return commitResumeUpdate(nextResume);
+      }
+
+      return prevResume;
+    });
+  }, [commitResumeUpdate]);
+
+  const moveSectionItem = useCallback((
+    sectionKind: MovableSectionKind,
+    itemId: string | number,
+    direction: MoveDirection
+  ) => {
+    setResume((prevResume) => {
+      if (!prevResume) return prevResume;
+
+      if (sectionKind === 'basics' && typeof itemId === 'string') {
+        const nextBasics = reorderBasicsFields(prevResume.basics, itemId as BasicFieldKey, direction);
+        if (nextBasics === prevResume.basics) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          basics: nextBasics,
+        });
+      }
+
+      if (sectionKind === 'education' && typeof itemId === 'string') {
+        const index = prevResume.education.findIndex((entry) => entry.id === itemId);
+        const nextEducation = moveArrayItem(prevResume.education, index, direction);
+
+        if (nextEducation === prevResume.education) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          education: nextEducation,
+        });
+      }
+
+      if (sectionKind === 'experience' && typeof itemId === 'string') {
+        const index = prevResume.experience.findIndex((entry) => entry.id === itemId);
+        const nextExperience = moveArrayItem(prevResume.experience, index, direction);
+
+        if (nextExperience === prevResume.experience) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          experience: nextExperience,
+        });
+      }
+
+      if (sectionKind === 'project' && typeof itemId === 'string') {
+        const index = prevResume.projects.findIndex((entry) => entry.id === itemId);
+        const nextProjects = moveArrayItem(prevResume.projects, index, direction);
+
+        if (nextProjects === prevResume.projects) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          projects: nextProjects,
+        });
+      }
+
+      if (sectionKind === 'skills') {
+        const index = typeof itemId === 'number' ? itemId : Number(itemId);
+        const nextSkills = moveArrayItem(prevResume.skills, index, direction);
+
+        if (nextSkills === prevResume.skills) {
+          return prevResume;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          skills: nextSkills,
+        });
+      }
+
+      return prevResume;
+    });
+  }, [commitResumeUpdate]);
+
   const updateBullet = useCallback((parentId: string, bulletId: string, newText: string) => {
     setResume((prevResume) => {
       if (!prevResume) return prevResume;
@@ -187,12 +325,9 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
 
       if (!updated) return prevResume;
 
-      setYamlText(stringifyYaml(nextResume));
-      setSelectedBullets(collectSelectedBullets(nextResume));
-      setIsValid(true);
-      return nextResume;
+      return commitResumeUpdate(nextResume);
     });
-  }, []);
+  }, [commitResumeUpdate]);
 
   const updateSummary = useCallback((newSummary: string) => {
     if (!resume) return;
@@ -333,6 +468,8 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
       toggleBullet,
       selectAllBullets,
       deselectAllBullets,
+      toggleSectionItem,
+      moveSectionItem,
       updateBullet,
       updateSummary,
       saveResume,
@@ -349,6 +486,8 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
       toggleBullet,
       selectAllBullets,
       deselectAllBullets,
+      toggleSectionItem,
+      moveSectionItem,
       updateBullet,
       updateSummary,
       saveResume,

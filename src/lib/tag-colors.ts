@@ -1,5 +1,3 @@
-import { useSettings } from '@/contexts/settings-context';
-
 // Map common tags to theme colors
 export const tagColorMap: Record<string, string> = {
   // Purple tags

@@ -1,11 +1,16 @@
 import { Check } from 'lucide-react';
-import type { Bullet } from '@/types/resume';
 import { getTagBgColorClass, getTagTextColorClass, getTagBorderColorClass } from '@/lib/tag-colors';
 
-type BulletTone = 'experience' | 'project';
+type BulletTone = 'basics' | 'education' | 'experience' | 'project' | 'skills';
+
+interface BulletCheckboxItem {
+  id: string;
+  text: string;
+  tags?: string[];
+}
 
 interface BulletCheckboxProps {
-  bullet: Bullet;
+  bullet: BulletCheckboxItem;
   isSelected: boolean;
   onToggle: () => void;
   tone?: BulletTone;
@@ -23,11 +28,29 @@ const toneClasses: Record<BulletTone, {
     selectedCheckbox: 'bg-df-accent-cyan border-df-accent-cyan',
     hoverCheckbox: 'group-hover:border-df-accent-cyan/70',
   },
+  education: {
+    selectedRow: 'bg-df-accent-green/10 border-df-accent-green',
+    hoverRow: 'hover:bg-df-accent-green/5',
+    selectedCheckbox: 'bg-df-accent-green border-df-accent-green',
+    hoverCheckbox: 'group-hover:border-df-accent-green/70',
+  },
   project: {
     selectedRow: 'bg-df-accent-red/10 border-df-accent-red',
     hoverRow: 'hover:bg-df-accent-red/5',
     selectedCheckbox: 'bg-df-accent-red border-df-accent-red',
     hoverCheckbox: 'group-hover:border-df-accent-red/70',
+  },
+  basics: {
+    selectedRow: 'bg-df-accent-amber/10 border-df-accent-amber',
+    hoverRow: 'hover:bg-df-accent-amber/5',
+    selectedCheckbox: 'bg-df-accent-amber border-df-accent-amber',
+    hoverCheckbox: 'group-hover:border-df-accent-amber/70',
+  },
+  skills: {
+    selectedRow: 'bg-df-accent-purple/10 border-df-accent-purple',
+    hoverRow: 'hover:bg-df-accent-purple/5',
+    selectedCheckbox: 'bg-df-accent-purple border-df-accent-purple',
+    hoverCheckbox: 'group-hover:border-df-accent-purple/70',
   },
 };
 

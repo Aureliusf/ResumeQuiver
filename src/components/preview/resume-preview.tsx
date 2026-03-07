@@ -1,4 +1,5 @@
 import { useResume } from '@/contexts/resume-context';
+import { getBasicsFieldEntries, getVisibleEducationEntries, getVisibleSkillCategories } from '@/lib/bullet-library';
 import { formatDateRange } from '@/lib/date-utils';
 import { forwardRef } from 'react';
 import '@/styles/resume.css';
@@ -27,13 +28,9 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ i
   };
 
   // Build contact line
-  const contactItems: string[] = [];
-  if (resume.basics.email) contactItems.push(resume.basics.email);
-  if (resume.basics.phone) contactItems.push(resume.basics.phone);
-  if (resume.basics.location) contactItems.push(resume.basics.location);
-  if (resume.basics.website) contactItems.push(resume.basics.website);
-  if (resume.basics.linkedin) contactItems.push(resume.basics.linkedin);
-  if (resume.basics.github) contactItems.push(resume.basics.github);
+  const contactItems = getBasicsFieldEntries(resume.basics).map((entry) => entry.value);
+  const visibleEducation = getVisibleEducationEntries(resume.education);
+  const visibleSkills = getVisibleSkillCategories(resume.skills);
 
   return (
     <div ref={ref} className={`resume-paper resume-paper-preview${isDarkMode ? ' resume-paper-preview-dark' : ''}`}>
@@ -46,10 +43,10 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ i
       </header>
 
       {/* Education */}
-      {resume.education.length > 0 && (
+      {visibleEducation.length > 0 && (
         <section className="resume-section">
           <h2 className="resume-section-title">Education</h2>
-          {resume.education.map((edu) => (
+          {visibleEducation.map((edu) => (
             <div key={edu.id} className="resume-education-entry">
               <div className="resume-row">
                 <span className="resume-row-left">
@@ -134,11 +131,11 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ i
       )}
 
       {/* Technical Skills */}
-      {resume.skills.length > 0 && (
+      {visibleSkills.length > 0 && (
         <section className="resume-section">
           <h2 className="resume-section-title">Technical Skills</h2>
           <div className="resume-skills">
-            {resume.skills.map((skill) => (
+            {visibleSkills.map((skill) => (
               <div key={skill.category}>
                 <span className="resume-skill-category">{skill.category}:</span>{' '}
                 <span className="resume-skill-items">{skill.items.join(', ')}</span>

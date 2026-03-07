@@ -78,7 +78,6 @@ function FluidLayoutComponent() {
           <FloatingSidebar 
             collapsed={sidebarCollapsed}
             onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-            onResize={sidebarCollapsed ? undefined : sidebar.handleMouseDown}
           />
           {!sidebarCollapsed && (
             <ResizeHandle 

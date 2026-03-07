@@ -15,6 +15,7 @@ export interface Education {
   location: string;
   degree: string;
   dates: string;
+  selected?: boolean;
 }
 
 export interface Experience {
@@ -40,6 +41,7 @@ export interface Project {
 export interface SkillCategory {
   category: string;
   items: string[];
+  selected?: boolean;
 }
 
 export interface Basics {
