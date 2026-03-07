@@ -1,24 +1,26 @@
-import type { Basics, Education, Resume, SkillCategory } from '@/types/resume';
+import type { Basics, BasicsField, Education, Resume, SkillCategory } from '@/types/resume';
 
 export type BulletLibrarySectionKind = 'basics' | 'education' | 'experience' | 'project' | 'skills';
 export type BulletLibraryItemLocator = string | number;
 export type MoveDirection = 'up' | 'down';
+export type DropPosition = 'before' | 'after';
 
-const BASIC_FIELD_LABELS = {
+const BASIC_FIELD_LABELS: Record<BasicsField, string> = {
   email: 'Email',
   phone: 'Phone',
   location: 'Location',
   website: 'Website',
   linkedin: 'LinkedIn',
   github: 'GitHub',
-} as const;
+};
 
-export type BasicFieldKey = keyof typeof BASIC_FIELD_LABELS;
+export type BasicFieldKey = BasicsField;
 
 export interface BasicsFieldEntry {
   key: BasicFieldKey;
   label: string;
   value: string;
+  selected: boolean;
 }
 
 export interface BulletLibraryItem {
@@ -63,11 +65,28 @@ export function moveArrayItem<T>(items: T[], index: number, direction: MoveDirec
   return nextItems;
 }
 
+export function moveArrayItemToIndex<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+  if (
+    fromIndex < 0 ||
+    fromIndex >= items.length ||
+    toIndex < 0 ||
+    toIndex >= items.length ||
+    fromIndex === toIndex
+  ) {
+    return items;
+  }
+
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(fromIndex, 1);
+  nextItems.splice(toIndex, 0, movedItem);
+  return nextItems;
+}
+
 export function getBasicsFieldEntries(
   basics: Basics,
-  options: { includeEmpty?: boolean } = {}
+  options: { includeEmpty?: boolean; includeHidden?: boolean } = {}
 ): BasicsFieldEntry[] {
-  const { includeEmpty = false } = options;
+  const { includeEmpty = false, includeHidden = false } = options;
 
   return Object.entries(basics).flatMap(([key, value]) => {
     if (!isBasicFieldKey(key) || typeof value !== 'string') {
@@ -78,11 +97,17 @@ export function getBasicsFieldEntries(
       return [];
     }
 
+    const selected = !basics.hiddenFields?.includes(key);
+    if (!includeHidden && !selected) {
+      return [];
+    }
+
     return [
       {
         key,
         label: BASIC_FIELD_LABELS[key],
         value: value.trim(),
+        selected,
       },
     ];
   });
@@ -93,7 +118,7 @@ export function reorderBasicsFields(
   fieldKey: BasicFieldKey,
   direction: MoveDirection
 ): Basics {
-  const orderedEntries = getBasicsFieldEntries(basics, { includeEmpty: true });
+  const orderedEntries = getBasicsFieldEntries(basics, { includeEmpty: true, includeHidden: true });
   const index = orderedEntries.findIndex((entry) => entry.key === fieldKey);
 
   if (index === -1) {
@@ -113,6 +138,10 @@ export function reorderBasicsFields(
     nextBasics.summary = basics.summary;
   }
 
+  if (basics.hiddenFields && basics.hiddenFields.length > 0) {
+    nextBasics.hiddenFields = basics.hiddenFields;
+  }
+
   reorderedEntries.forEach(({ key }) => {
     const value = basics[key];
     if (typeof value === 'string') {
@@ -121,6 +150,61 @@ export function reorderBasicsFields(
   });
 
   return nextBasics;
+}
+
+export function reorderBasicsFieldsToIndex(
+  basics: Basics,
+  fieldKey: BasicFieldKey,
+  targetIndex: number
+): Basics {
+  const orderedEntries = getBasicsFieldEntries(basics, { includeEmpty: true, includeHidden: true });
+  const index = orderedEntries.findIndex((entry) => entry.key === fieldKey);
+
+  if (index === -1) {
+    return basics;
+  }
+
+  const reorderedEntries = moveArrayItemToIndex(orderedEntries, index, targetIndex);
+  if (reorderedEntries === orderedEntries) {
+    return basics;
+  }
+
+  const nextBasics: Basics = {
+    name: basics.name,
+  };
+
+  if (typeof basics.summary === 'string' && basics.summary.length > 0) {
+    nextBasics.summary = basics.summary;
+  }
+
+  if (basics.hiddenFields && basics.hiddenFields.length > 0) {
+    nextBasics.hiddenFields = basics.hiddenFields;
+  }
+
+  reorderedEntries.forEach(({ key }) => {
+    const value = basics[key];
+    if (typeof value === 'string') {
+      nextBasics[key] = value;
+    }
+  });
+
+  return nextBasics;
+}
+
+export function getDropReorderIndex(
+  sourceIndex: number,
+  targetIndex: number,
+  position: DropPosition
+): number {
+  if (sourceIndex === targetIndex) {
+    return sourceIndex;
+  }
+
+  if (position === 'before') {
+    return sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+  }
+
+  return sourceIndex < targetIndex ? targetIndex : targetIndex + 1;
 }
 
 function getProjectSubtitle(technologies: string[], startDate: string, endDate: string): string {
@@ -151,18 +235,19 @@ export function buildBulletLibraryGroups(
 ): BulletLibraryGroup[] {
   const groups: BulletLibraryGroup[] = [];
 
-  const basicsSections: BulletLibrarySection[] = getBasicsFieldEntries(resume.basics).map((field) => ({
+  const basicsSections: BulletLibrarySection[] = getBasicsFieldEntries(resume.basics, { includeHidden: true }).map((field) => ({
     id: `basics-${field.key}`,
     kind: 'basics',
     moveId: field.key,
+    toggleId: field.key,
     title: field.label,
     subtitle: field.value,
     items: [
       {
         id: `basics-item-${field.key}`,
         text: field.value,
-        selected: true,
-        toggleable: false,
+        selected: field.selected,
+        toggleable: true,
       },
     ],
   }));

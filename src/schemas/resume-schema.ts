@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const basicsFieldSchema = z.enum(['email', 'phone', 'location', 'website', 'linkedin', 'github']);
+
 // Bullet schema
 export const bulletSchema = z.object({
   id: z.string(),
@@ -58,6 +60,7 @@ export const basicsSchema = z.object({
   linkedin: z.string().optional(),
   github: z.string().optional(),
   summary: z.string().optional().or(z.literal('')),
+  hiddenFields: z.array(basicsFieldSchema).optional().default([]),
 });
 
 // Resume schema

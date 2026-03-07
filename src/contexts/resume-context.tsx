@@ -5,7 +5,7 @@ import { storage } from '@/lib/storage';
 import { parseYaml, stringifyYaml } from '@/lib/yaml-utils';
 import type { Resume } from '@/types/resume';
 
-type ToggleableSectionKind = 'education' | 'skills';
+type ToggleableSectionKind = 'basics' | 'education' | 'skills';
 type MovableSectionKind = 'basics' | ToggleableSectionKind | 'experience' | 'project';
 
 interface ResumeContextState {
@@ -185,6 +185,35 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         };
 
         return updated ? commitResumeUpdate(nextResume) : prevResume;
+      }
+
+      if (sectionKind === 'basics' && typeof itemId === 'string') {
+        const fieldKey = itemId as BasicFieldKey;
+        if (typeof prevResume.basics[fieldKey] !== 'string') {
+          return prevResume;
+        }
+
+        const hiddenFields = new Set(prevResume.basics.hiddenFields ?? []);
+        if (hiddenFields.has(fieldKey)) {
+          hiddenFields.delete(fieldKey);
+        } else {
+          hiddenFields.add(fieldKey);
+        }
+
+        const nextHiddenFields = Array.from(hiddenFields);
+        const nextBasics = {
+          ...prevResume.basics,
+          ...(nextHiddenFields.length > 0 ? { hiddenFields: nextHiddenFields } : {}),
+        };
+
+        if (nextHiddenFields.length === 0 && 'hiddenFields' in nextBasics) {
+          delete nextBasics.hiddenFields;
+        }
+
+        return commitResumeUpdate({
+          ...prevResume,
+          basics: nextBasics,
+        });
       }
 
       if (sectionKind === 'skills') {

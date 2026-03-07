@@ -158,6 +158,7 @@ export function mergeWithDefaults(partialData: Partial<Resume>): Resume {
       ...(partialData.basics?.website && { website: partialData.basics.website }),
       ...(partialData.basics?.linkedin && { linkedin: partialData.basics.linkedin }),
       ...(partialData.basics?.github && { github: partialData.basics.github }),
+      ...(partialData.basics?.hiddenFields && { hiddenFields: partialData.basics.hiddenFields }),
     },
     education: partialData.education || [],
     experience: partialData.experience || [],

@@ -5,6 +5,8 @@ import {
   ChevronDown,
   ChevronUp,
   CheckSquare,
+  Minus,
+  Plus,
   Sparkles,
   Square,
   X,
@@ -262,7 +264,7 @@ const SectionCard = memo(function SectionCard({
   const selectedCount = items.filter((item) => item.selected).length;
   const hasToggleableItems = items.some((item) => item.toggleable);
   const showBulkActions = (kind === 'experience' || kind === 'project') && items.length > 1;
-  const showItems = kind !== 'basics';
+  const showItems = hasToggleableItems || kind !== 'basics';
   const tone = sectionToneStyles[kind];
   const countLabel = hasToggleableItems ? `${selectedCount} / ${items.length}` : 'Visible';
 
@@ -365,6 +367,7 @@ const SectionCard = memo(function SectionCard({
 
 export const BulletManager = memo(function BulletManager() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Partial<Record<SectionKind, boolean>>>({});
   const {
     resume,
     selectedBullets,
@@ -387,6 +390,13 @@ export const BulletManager = memo(function BulletManager() {
     ),
     0
   );
+
+  const toggleGroup = (groupKind: SectionKind) => {
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [groupKind]: !prev[groupKind],
+    }));
+  };
 
   return (
     <div className="bg-df-surface border-t border-df-border">
@@ -420,6 +430,7 @@ export const BulletManager = memo(function BulletManager() {
                 (total, section) => total + section.items.filter((item) => item.selected).length,
                 0
               );
+              const isGroupCollapsed = collapsedGroups[group.kind] === true;
 
               return (
                 <div key={group.kind} className="space-y-4">
@@ -431,43 +442,67 @@ export const BulletManager = memo(function BulletManager() {
                       {groupSelected} / {groupTotal} selected
                     </span>
                     <div className={`h-px flex-1 bg-gradient-to-r ${tone.divider} to-transparent`} />
+                    <button
+                      onClick={() => toggleGroup(group.kind)}
+                      className={`p-1.5 rounded-lg text-df-text-secondary hover:bg-df-elevated transition-fluid focus:outline-2 focus:outline-offset-2 ${tone.action}`}
+                      aria-expanded={!isGroupCollapsed}
+                      aria-controls={`bullet-library-group-${group.kind}`}
+                      aria-label={`${isGroupCollapsed ? 'Expand' : 'Collapse'} ${group.label}`}
+                    >
+                      <div className="relative w-4 h-4 flex items-center justify-center">
+                        <Plus
+                          className={`w-4 h-4 absolute transition-all duration-300 ${
+                            isGroupCollapsed ? 'rotate-0 opacity-100' : 'rotate-90 opacity-0'
+                          }`}
+                          aria-hidden="true"
+                        />
+                        <Minus
+                          className={`w-4 h-4 absolute transition-all duration-300 ${
+                            isGroupCollapsed ? '-rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                          }`}
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </button>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {group.sections.map((section, index) => (
-                      <SectionCard
-                        key={section.id}
-                        kind={section.kind}
-                        title={section.title}
-                        subtitle={section.subtitle}
-                        items={section.items}
-                        parentId={section.kind === 'experience' || section.kind === 'project' ? section.id : undefined}
-                        parentTitle={section.title}
-                        role={section.role}
-                        company={section.company}
-                        onToggleItem={
-                          section.kind === 'experience' || section.kind === 'project'
-                            ? (itemId) => toggleBullet(section.id, itemId)
-                            : section.toggleId !== undefined
-                              ? () => toggleSectionItem(section.kind as 'education' | 'skills', section.toggleId as string | number)
+                  {!isGroupCollapsed && (
+                    <div id={`bullet-library-group-${group.kind}`} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {group.sections.map((section, index) => (
+                        <SectionCard
+                          key={section.id}
+                          kind={section.kind}
+                          title={section.title}
+                          subtitle={section.subtitle}
+                          items={section.items}
+                          parentId={section.kind === 'experience' || section.kind === 'project' ? section.id : undefined}
+                          parentTitle={section.title}
+                          role={section.role}
+                          company={section.company}
+                          onToggleItem={
+                            section.kind === 'experience' || section.kind === 'project'
+                              ? (itemId) => toggleBullet(section.id, itemId)
+                              : section.toggleId !== undefined
+                              ? () => toggleSectionItem(section.kind as 'basics' | 'education' | 'skills', section.toggleId as string | number)
                               : undefined
-                        }
-                        onSelectAll={
-                          section.kind === 'experience' || section.kind === 'project'
-                            ? () => selectAllBullets(section.id)
-                            : undefined
-                        }
-                        onDeselectAll={
-                          section.kind === 'experience' || section.kind === 'project'
-                            ? () => deselectAllBullets(section.id)
-                            : undefined
-                        }
-                        canMoveUp={index > 0}
-                        canMoveDown={index < group.sections.length - 1}
-                        onMoveUp={() => moveSectionItem(section.kind, section.moveId, 'up')}
-                        onMoveDown={() => moveSectionItem(section.kind, section.moveId, 'down')}
-                      />
-                    ))}
-                  </div>
+                          }
+                          onSelectAll={
+                            section.kind === 'experience' || section.kind === 'project'
+                              ? () => selectAllBullets(section.id)
+                              : undefined
+                          }
+                          onDeselectAll={
+                            section.kind === 'experience' || section.kind === 'project'
+                              ? () => deselectAllBullets(section.id)
+                              : undefined
+                          }
+                          canMoveUp={index > 0}
+                          canMoveDown={index < group.sections.length - 1}
+                          onMoveUp={() => moveSectionItem(section.kind, section.moveId, 'up')}
+                          onMoveDown={() => moveSectionItem(section.kind, section.moveId, 'down')}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}

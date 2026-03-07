@@ -9,6 +9,8 @@ export interface Bullet {
   aiGenerated?: boolean;
 }
 
+export type BasicsField = 'email' | 'phone' | 'location' | 'website' | 'linkedin' | 'github';
+
 export interface Education {
   id: string;
   school: string;
@@ -53,6 +55,7 @@ export interface Basics {
   linkedin?: string;
   github?: string;
   summary?: string;
+  hiddenFields?: BasicsField[];
 }
 
 export interface Resume {

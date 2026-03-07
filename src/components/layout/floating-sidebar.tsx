@@ -116,6 +116,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
     moveSectionItem,
   } = useResume();
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [collapsedGroups, setCollapsedGroups] = useState<Partial<Record<SectionKind, boolean>>>({});
 
   if (!resume) return null;
 
@@ -155,9 +156,16 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
       return;
     }
 
-    if ((section.kind === 'education' || section.kind === 'skills') && section.toggleId !== undefined) {
+    if ((section.kind === 'basics' || section.kind === 'education' || section.kind === 'skills') && section.toggleId !== undefined) {
       toggleSectionItem(section.kind, section.toggleId);
     }
+  };
+
+  const toggleGroup = (groupKind: SectionKind) => {
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [groupKind]: !prev[groupKind],
+    }));
   };
 
   return (
@@ -194,6 +202,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
               (total, section) => total + section.items.filter((item) => item.selected).length,
               0
             );
+            const isGroupCollapsed = collapsedGroups[group.kind] === true;
 
             return (
               <div key={group.kind} className="space-y-3">
@@ -205,138 +214,164 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                     {groupSelected}/{groupTotal} selected
                   </span>
                   <div className={`h-px flex-1 bg-gradient-to-r ${tone.divider} to-transparent`} />
+                  <button
+                    onClick={() => toggleGroup(group.kind)}
+                    className={`p-1.5 rounded-lg text-df-text-secondary hover:bg-df-elevated transition-fluid focus:outline-2 focus:outline-offset-2 ${tone.moveAction}`}
+                    aria-expanded={!isGroupCollapsed}
+                    aria-controls={`floating-bullet-group-${group.kind}`}
+                    aria-label={`${isGroupCollapsed ? 'Expand' : 'Collapse'} ${group.label}`}
+                  >
+                    <div className="relative w-4 h-4 flex items-center justify-center">
+                      <Plus
+                        className={`w-4 h-4 absolute transition-all duration-300 ${
+                          isGroupCollapsed ? 'rotate-0 opacity-100' : 'rotate-90 opacity-0'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <Minus
+                        className={`w-4 h-4 absolute transition-all duration-300 ${
+                          isGroupCollapsed ? '-rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                        }`}
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </button>
                 </div>
 
-                {group.sections.map((section, index) => {
-                  const { selectedInSection, isToggleable, isVisible, isExpandable } = getSectionState(section);
-                  const isExpanded = activeSection === section.id;
+                {!isGroupCollapsed && (
+                  <div id={`floating-bullet-group-${group.kind}`} className="space-y-3">
+                    {group.sections.map((section, index) => {
+                      const { selectedInSection, isToggleable, isVisible, isExpandable } = getSectionState(section);
+                      const isExpanded = activeSection === section.id;
 
-                  return (
-                    <div
-                      key={section.id}
-                      className={`rounded-xl border overflow-hidden transition-all duration-300 ${
-                        isVisible ? `${tone.cardBorder} bg-df-elevated/50` : `border-df-border/50 ${tone.cardSurface} opacity-60`
-                      }`}
-                    >
-                      <div className="w-full flex items-center justify-between p-5 transition-fluid">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          {isToggleable ? (
-                            <button
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                toggleSectionVisibility(section);
-                              }}
-                              className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid flex-shrink-0"
-                              title={isVisible ? 'Hide from resume' : 'Show in resume'}
-                            >
-                              {isVisible ? (
-                                <Eye className={`w-4 h-4 ${tone.icon}`} />
+                      return (
+                        <div
+                          key={section.id}
+                          className={`rounded-xl border overflow-hidden transition-all duration-300 ${
+                            isVisible ? `${tone.cardBorder} bg-df-elevated/50` : `border-df-border/50 ${tone.cardSurface} opacity-60`
+                          }`}
+                        >
+                          <div className="w-full flex items-center justify-between p-5 transition-fluid">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              {isToggleable ? (
+                                <button
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    toggleSectionVisibility(section);
+                                  }}
+                                  className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid flex-shrink-0"
+                                  title={isVisible ? 'Hide from resume' : 'Show in resume'}
+                                >
+                                  {isVisible ? (
+                                    <Eye className={`w-4 h-4 ${tone.icon}`} />
+                                  ) : (
+                                    <EyeOff className="w-4 h-4 text-df-text-muted" />
+                                  )}
+                                </button>
                               ) : (
-                                <EyeOff className="w-4 h-4 text-df-text-muted" />
+                                <span className={`mt-1 h-2 w-2 rounded-full ${tone.count}`} aria-hidden="true" />
                               )}
-                            </button>
-                          ) : (
-                            <span className={`mt-1 h-2 w-2 rounded-full ${tone.count}`} aria-hidden="true" />
-                          )}
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${tone.badge}`}>
-                                {group.label}
-                              </span>
-                              <span className={`text-xs font-mono ${tone.count}`}>
-                                {isToggleable ? `${selectedInSection}/${section.items.length}` : 'Visible'}
-                              </span>
-                            </div>
-                            <span className={`text-sm font-medium text-left pr-3 flex-1 break-words block mt-2 ${
-                              isVisible ? 'text-df-text' : 'text-df-text-secondary'
-                            }`}>
-                              {section.title}
-                            </span>
-                            {section.subtitle && (
-                              <p className="text-xs text-df-text-muted mt-1 break-words">
-                                {section.subtitle}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-1 flex-shrink-0 ml-3">
-                          <button
-                            onClick={() => moveSectionItem(section.kind, section.moveId, 'up')}
-                            disabled={index === 0}
-                            className={`p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed ${tone.moveAction}`}
-                            title={`Move ${section.title} up`}
-                          >
-                            <ArrowUp className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => moveSectionItem(section.kind, section.moveId, 'down')}
-                            disabled={index === group.sections.length - 1}
-                            className={`p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed ${tone.moveAction}`}
-                            title={`Move ${section.title} down`}
-                          >
-                            <ArrowDown className="w-4 h-4" />
-                          </button>
-                          {isExpandable && (
-                            <button
-                              onClick={() => setActiveSection(isExpanded ? null : section.id)}
-                              className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid"
-                              title={isExpanded ? 'Collapse section' : 'Expand section'}
-                            >
-                              <div className="relative w-4 h-4 flex items-center justify-center">
-                                <Plus
-                                  className={`w-4 h-4 text-df-text-secondary absolute transition-all duration-300 ${
-                                    isExpanded ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
-                                  }`}
-                                />
-                                <Minus
-                                  className={`w-4 h-4 ${tone.icon} absolute transition-all duration-300 ${
-                                    isExpanded ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
-                                  }`}
-                                />
-                              </div>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {isExpandable && isExpanded && (
-                        <div className="border-t border-df-border p-3 space-y-2">
-                          {section.items.map((item) => (
-                            <button
-                              key={item.id}
-                              onClick={() => {
-                                if (section.kind === 'experience' || section.kind === 'project') {
-                                  toggleBullet(section.id, item.id);
-                                  return;
-                                }
-
-                                if ((section.kind === 'education' || section.kind === 'skills') && section.toggleId !== undefined) {
-                                  toggleSectionItem(section.kind, section.toggleId);
-                                }
-                              }}
-                              className={`w-full flex items-start gap-3 p-3 rounded-lg text-left text-sm transition-all ${
-                                item.selected ? tone.rowSelected : `text-df-text-secondary ${tone.rowHover}`
-                              }`}
-                            >
-                              <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
-                                item.selected ? tone.checkboxSelected : 'border-df-border'
-                              }`}>
-                                {item.selected && (
-                                  <CheckSquare className="w-3.5 h-3.5 text-df-primary" />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${tone.badge}`}>
+                                    {group.label}
+                                  </span>
+                                  <span className={`text-xs font-mono ${tone.count}`}>
+                                    {isToggleable ? `${selectedInSection}/${section.items.length}` : 'Visible'}
+                                  </span>
+                                </div>
+                                <span className={`text-sm font-medium text-left pr-3 flex-1 break-words block mt-2 ${
+                                  isVisible ? 'text-df-text' : 'text-df-text-secondary'
+                                }`}>
+                                  {section.title}
+                                </span>
+                                {section.subtitle && (
+                                  <p className="text-xs text-df-text-muted mt-1 break-words">
+                                    {section.subtitle}
+                                  </p>
                                 )}
                               </div>
-                              <span className={`break-words whitespace-normal leading-relaxed ${item.selected ? '' : 'opacity-60'}`}>
-                                {item.text}
-                              </span>
-                            </button>
-                          ))}
+                            </div>
+
+                            <div className="flex items-center gap-1 flex-shrink-0 ml-3">
+                              <button
+                                onClick={() => moveSectionItem(section.kind, section.moveId, 'up')}
+                                disabled={index === 0}
+                                className={`p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed ${tone.moveAction}`}
+                                title={`Move ${section.title} up`}
+                              >
+                                <ArrowUp className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => moveSectionItem(section.kind, section.moveId, 'down')}
+                                disabled={index === group.sections.length - 1}
+                                className={`p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid text-df-text-secondary disabled:opacity-40 disabled:cursor-not-allowed ${tone.moveAction}`}
+                                title={`Move ${section.title} down`}
+                              >
+                                <ArrowDown className="w-4 h-4" />
+                              </button>
+                              {isExpandable && (
+                                <button
+                                  onClick={() => setActiveSection(isExpanded ? null : section.id)}
+                                  className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid"
+                                  title={isExpanded ? 'Collapse section' : 'Expand section'}
+                                >
+                                  <div className="relative w-4 h-4 flex items-center justify-center">
+                                    <Plus
+                                      className={`w-4 h-4 text-df-text-secondary absolute transition-all duration-300 ${
+                                        isExpanded ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
+                                      }`}
+                                    />
+                                    <Minus
+                                      className={`w-4 h-4 ${tone.icon} absolute transition-all duration-300 ${
+                                        isExpanded ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
+                                      }`}
+                                    />
+                                  </div>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {isExpandable && isExpanded && (
+                            <div className="border-t border-df-border p-3 space-y-2">
+                              {section.items.map((item) => (
+                                <button
+                                  key={item.id}
+                                  onClick={() => {
+                                    if (section.kind === 'experience' || section.kind === 'project') {
+                                      toggleBullet(section.id, item.id);
+                                      return;
+                                    }
+
+                                    if ((section.kind === 'education' || section.kind === 'skills') && section.toggleId !== undefined) {
+                                      toggleSectionItem(section.kind, section.toggleId);
+                                    }
+                                  }}
+                                  className={`w-full flex items-start gap-3 p-3 rounded-lg text-left text-sm transition-all ${
+                                    item.selected ? tone.rowSelected : `text-df-text-secondary ${tone.rowHover}`
+                                  }`}
+                                >
+                                  <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
+                                    item.selected ? tone.checkboxSelected : 'border-df-border'
+                                  }`}>
+                                    {item.selected && (
+                                      <CheckSquare className="w-3.5 h-3.5 text-df-primary" />
+                                    )}
+                                  </div>
+                                  <span className={`break-words whitespace-normal leading-relaxed ${item.selected ? '' : 'opacity-60'}`}>
+                                    {item.text}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
