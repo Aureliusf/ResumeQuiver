@@ -1,15 +1,22 @@
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback, lazy, Suspense, useId } from 'react';
 import { useResume } from '@/contexts/resume-context';
 import { YamlEditor } from './yaml-editor';
-import { AIConfigBar } from './ai-config-bar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { showSuccessToast, showErrorToast } from '@/lib/toast';
 import { FileText, Save, AlertCircle, Sparkles } from 'lucide-react';
+
+const LazyAIConfigBar = lazy(() =>
+  import('./ai-config-bar').then((module) => ({
+    default: module.AIConfigBar,
+  }))
+);
 
 function EditorPanelComponent() {
   const { yamlText, updateYaml, isValid, saveResume } = useResume();
   const [showConfig, setShowConfig] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const editorLabelId = useId();
+  const editorDescriptionId = useId();
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
@@ -32,7 +39,7 @@ function EditorPanelComponent() {
             <FileText className="w-4 h-4 text-df-accent-cyan" />
           </div>
           <div>
-            <h2 className="text-sm font-medium text-df-text">YAML Editor</h2>
+            <h2 id={editorLabelId} className="text-sm font-medium text-df-text">YAML Editor</h2>
             <p className="text-xs text-df-text-muted">Edit your resume data</p>
           </div>
         </div>
@@ -54,6 +61,7 @@ function EditorPanelComponent() {
           
           {/* Save Button */}
           <button
+            type="button"
             onClick={handleSave}
             disabled={isSaving}
             className="flex items-center gap-2 px-5 py-2.5 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text transition-fluid disabled:opacity-50"
@@ -71,8 +79,11 @@ function EditorPanelComponent() {
       {/* AI Config Toggle */}
       <div className="px-6 py-3 border-b border-df-border">
         <button
+          type="button"
           onClick={() => setShowConfig(!showConfig)}
           className="flex items-center gap-2 text-sm text-df-text-secondary hover:text-df-text transition-fluid"
+          aria-expanded={showConfig}
+          aria-controls="ai-config-panel"
         >
           <Sparkles className="w-4 h-4 text-df-accent-purple" />
           <span>AI Configuration</span>
@@ -82,8 +93,16 @@ function EditorPanelComponent() {
 
       {/* AI Config Panel */}
       {showConfig && (
-        <div className="content-fade-in">
-          <AIConfigBar />
+        <div id="ai-config-panel" className="content-fade-in">
+          <Suspense
+            fallback={
+              <div className="border-b border-df-border px-6 py-4">
+                <LoadingSpinner size="sm" text="Loading AI configuration..." />
+              </div>
+            }
+          >
+            <LazyAIConfigBar />
+          </Suspense>
         </div>
       )}
 
@@ -93,11 +112,17 @@ function EditorPanelComponent() {
           value={yamlText}
           onChange={updateYaml}
           error={!isValid}
+          ariaLabel="Resume YAML editor"
+          ariaLabelledBy={editorLabelId}
+          ariaDescribedBy={editorDescriptionId}
         />
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-3 border-t border-df-border bg-df-elevated/30 flex items-center justify-between text-xs text-df-text-muted">
+      <div
+        id={editorDescriptionId}
+        className="px-6 py-3 border-t border-df-border bg-df-elevated/30 flex items-center justify-between text-xs text-df-text-muted"
+      >
         <span>Use YAML format for structured data</span>
         <span className="font-mono">Ctrl+S to save</span>
       </div>

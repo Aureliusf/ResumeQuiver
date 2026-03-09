@@ -22,6 +22,18 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
+
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      void import('@sentry/react')
+        .then(({ captureException }) => {
+          captureException(error, {
+            extra: {
+              componentStack: errorInfo.componentStack,
+            },
+          });
+        })
+        .catch(() => undefined);
+    }
   }
 
   handleReset = () => {

@@ -1,6 +1,9 @@
-import * as Sentry from '@sentry/react';
+import { browserTracingIntegration, init, replayIntegration } from '@sentry/react';
 
-Sentry.init({
+const replayEnabled =
+  import.meta.env.PROD && import.meta.env.VITE_SENTRY_ENABLE_REPLAY === 'true';
+
+init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
   release: import.meta.env.VITE_APP_VERSION,
@@ -8,11 +11,15 @@ Sentry.init({
   sendDefaultPii: false,
 
   integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
+    browserTracingIntegration(),
+    ...(replayEnabled
+      ? [
+          replayIntegration({
+            maskAllText: true,
+            blockAllMedia: true,
+          }),
+        ]
+      : []),
   ],
 
   tracesSampleRate: 0.1,

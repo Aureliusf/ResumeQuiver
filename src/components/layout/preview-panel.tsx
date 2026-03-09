@@ -1,8 +1,7 @@
-import { memo, useState, useRef, useEffect } from 'react';
+import { memo, useState, useRef, useLayoutEffect, useCallback } from 'react';
 import { ZoomIn, ZoomOut, Maximize2, Download, RefreshCw, AlertTriangle, Moon, Sun } from 'lucide-react';
 import { ResumePreview } from '@/components/preview/resume-preview';
 import { useResume } from '@/contexts/resume-context';
-import { generatePDF, downloadPDF, getPDFFilename } from '@/lib/pdf-export';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { showSuccessToast, showErrorToast } from '@/lib/toast';
 
@@ -24,7 +23,7 @@ function PreviewPanelComponent() {
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.5));
 
   // Measure content height
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!resumeRef.current) return;
 
     const measureHeight = () => {
@@ -43,11 +42,12 @@ function PreviewPanelComponent() {
     return () => observer.disconnect();
   }, [resume]);
 
-  const handleGeneratePDF = async () => {
+  const handleGeneratePDF = useCallback(async () => {
     if (!resume || !isValid) return;
 
     setIsGenerating(true);
     try {
+      const { downloadPDF, generatePDF, getPDFFilename } = await import('@/lib/pdf-export');
       const blob = await generatePDF(resume, selectedBullets);
       const filename = getPDFFilename(resume);
       downloadPDF(blob, filename);
@@ -58,7 +58,7 @@ function PreviewPanelComponent() {
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [isValid, resume, selectedBullets]);
 
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
@@ -115,9 +115,11 @@ function PreviewPanelComponent() {
           <div className="h-4 w-px bg-df-border" />
           <div className="flex items-center gap-1 bg-df-elevated rounded-lg p-1">
             <button
+              type="button"
               onClick={handleZoomOut}
               className="p-1.5 rounded hover:bg-df-elevated-2 text-df-text-secondary hover:text-df-text transition-fluid"
               title="Zoom out"
+              aria-label="Zoom out preview"
             >
               <ZoomOut className="w-4 h-4" />
             </button>
@@ -125,14 +127,17 @@ function PreviewPanelComponent() {
               {Math.round(zoom * 100)}%
             </span>
             <button
+              type="button"
               onClick={handleZoomIn}
               className="p-1.5 rounded hover:bg-df-elevated-2 text-df-text-secondary hover:text-df-text transition-fluid"
               title="Zoom in"
+              aria-label="Zoom in preview"
             >
               <ZoomIn className="w-4 h-4" />
             </button>
           </div>
           <button
+            type="button"
             onClick={() => setIsPreviewDark(prev => !prev)}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-fluid ${
               isPreviewDark
@@ -149,13 +154,16 @@ function PreviewPanelComponent() {
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={toggleFullscreen}
             className="p-2 rounded-lg hover:bg-df-elevated text-df-text-secondary hover:text-df-text transition-fluid"
             title="Toggle fullscreen"
+            aria-label={isFullscreen ? 'Exit fullscreen preview' : 'Enter fullscreen preview'}
           >
             <Maximize2 className="w-4 h-4" />
           </button>
           <button
+            type="button"
             onClick={handleGeneratePDF}
             disabled={!isValid || isGenerating}
             className="flex items-center gap-2 px-4 py-2 bg-df-accent-cyan text-df-primary text-sm font-medium rounded-lg hover:bg-df-accent-cyan/90 disabled:opacity-50 disabled:cursor-not-allowed transition-fluid"

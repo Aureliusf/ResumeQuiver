@@ -1,12 +1,21 @@
 import './instrument'
 
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom/client'
-import * as Sentry from '@sentry/react'
 import App from './App'
 import './index.css'
-import { SpeedInsights } from "@vercel/speed-insights/react"
-import { Analytics } from "@vercel/analytics/react"
+
+const LazySpeedInsights = lazy(() =>
+  import('@vercel/speed-insights/react').then((module) => ({
+    default: module.SpeedInsights,
+  }))
+)
+
+const LazyAnalytics = lazy(() =>
+  import('@vercel/analytics/react').then((module) => ({
+    default: module.Analytics,
+  }))
+)
 
 const rootElement = document.getElementById('root')
 
@@ -16,10 +25,10 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <Sentry.ErrorBoundary fallback={<p>Something went wrong</p>}>
-      <App />
-      <SpeedInsights />
-      <Analytics />
-    </Sentry.ErrorBoundary>
+    <App />
+    <Suspense fallback={null}>
+      <LazySpeedInsights />
+      <LazyAnalytics />
+    </Suspense>
   </React.StrictMode>,
 )

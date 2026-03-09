@@ -10,6 +10,9 @@ interface YamlEditorProps {
   value: string;
   onChange: (value: string) => void;
   error?: boolean;
+  ariaLabel?: string;
+  ariaLabelledBy?: string;
+  ariaDescribedBy?: string;
 }
 
 const customTheme = EditorView.theme({
@@ -29,9 +32,13 @@ const customTheme = EditorView.theme({
   '.cm-gutters': {
     backgroundColor: '#1A1A1A',
     borderRight: '1px solid #333333',
-    color: '#888888',
+    color: '#A3A3A3',
     fontFamily: "'JetBrains Mono', monospace",
     fontSize: '14px',
+  },
+  '.cm-gutter, .cm-gutterElement': {
+    backgroundColor: '#1A1A1A',
+    color: '#A3A3A3',
   },
   '.cm-activeLineGutter': {
     backgroundColor: '#252525',
@@ -80,7 +87,14 @@ const yamlErrorExtension = EditorView.updateListener.of(() => {
   // This can be extended to handle YAML-specific error highlighting
 });
 
-export function YamlEditor({ value, onChange, error }: YamlEditorProps) {
+export function YamlEditor({
+  value,
+  onChange,
+  error,
+  ariaLabel,
+  ariaLabelledBy,
+  ariaDescribedBy,
+}: YamlEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -100,6 +114,11 @@ export function YamlEditor({ value, onChange, error }: YamlEditorProps) {
         autocompletion(),
         keymap.of([...defaultKeymap, indentWithTab]),
         yamlErrorExtension,
+        EditorView.contentAttributes.of({
+          ...(ariaLabel ? { 'aria-label': ariaLabel } : {}),
+          ...(ariaLabelledBy ? { 'aria-labelledby': ariaLabelledBy } : {}),
+          ...(ariaDescribedBy ? { 'aria-describedby': ariaDescribedBy } : {}),
+        }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             onChange(update.state.doc.toString());

@@ -88,8 +88,13 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
         {/* Resume Selector */}
         <div className="relative">
           <button
+            type="button"
             onClick={() => setShowResumeDropdown(!showResumeDropdown)}
             className="flex items-center gap-2 px-5 py-2.5 bg-df-elevated hover:bg-df-elevated-2 border border-df-border rounded-lg text-sm text-df-text-secondary hover:text-df-text transition-fluid"
+            aria-controls="resume-selector-menu"
+            aria-expanded={showResumeDropdown}
+            aria-haspopup="menu"
+            aria-label={`Select resume. Current resume: ${resume?.basics.name || 'Untitled Resume'}`}
           >
             <span className="max-w-[150px] truncate">
               {resume?.basics.name || 'Untitled Resume'}
@@ -98,12 +103,16 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
           </button>
 
           {showResumeDropdown && (
-            <div className="absolute top-full left-0 mt-2 w-64 bg-df-surface/95 border border-df-border rounded-xl shadow-2xl overflow-hidden z-50 content-fade-in backdrop-blur-md">
+            <div
+              id="resume-selector-menu"
+              className="absolute top-full left-0 mt-2 w-64 bg-df-surface/95 border border-df-border rounded-xl shadow-2xl overflow-hidden z-50 content-fade-in backdrop-blur-md"
+            >
               <div className="p-2">
                 <p className="text-xs text-df-text-muted px-3 py-2 uppercase tracking-wider">Your Resumes</p>
                 {resumes.map((r) => (
                   <button
                     key={r.id}
+                    type="button"
                     onClick={() => {
                       loadResume(r.id);
                       setShowResumeDropdown(false);
@@ -119,6 +128,7 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
                 ))}
                 <div className="border-t border-df-border my-2" />
                 <button
+                  type="button"
                   onClick={() => {
                     createNewResume();
                     setShowResumeDropdown(false);
@@ -143,6 +153,7 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => onTabChange(tab.id)}
               className={`relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 isActive 
@@ -164,9 +175,11 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
         <button
+          type="button"
           onClick={onOpenHelp}
           className="p-2 text-df-text-secondary hover:text-df-text hover:bg-df-elevated rounded-lg transition-fluid"
           title="Keyboard shortcuts"
+          aria-label="Open keyboard shortcuts"
         >
           <HelpCircle className="w-5 h-5" />
         </button>

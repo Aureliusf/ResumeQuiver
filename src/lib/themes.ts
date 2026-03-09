@@ -10,6 +10,7 @@ export interface Theme {
     elevated: string;
     text: string;
     textSecondary: string;
+    textMuted: string;
     accentRed: string;
     accentCyan: string;
     accentPurple?: string;
@@ -35,7 +36,8 @@ export const themes: Theme[] = [
       surface: '#1A1A1A',
       elevated: '#252525',
       text: '#FFFFFF',
-      textSecondary: '#888888',
+      textSecondary: '#B3B3B3',
+      textMuted: '#9A9A9A',
       accentRed: '#FF3366',
       accentCyan: '#00FFFF',
       border: '#333333',
@@ -50,7 +52,8 @@ export const themes: Theme[] = [
       surface: '#1A1A1A',
       elevated: '#252525',
       text: '#FFFFFF',
-      textSecondary: '#888888',
+      textSecondary: '#B3B3B3',
+      textMuted: '#9A9A9A',
       accentRed: '#FF3366',
       accentCyan: '#00FFFF',
       accentPurple: '#9933FF',
@@ -66,7 +69,8 @@ export const themes: Theme[] = [
       surface: '#1A1A1A',
       elevated: '#252525',
       text: '#FFFFFF',
-      textSecondary: '#888888',
+      textSecondary: '#B3B3B3',
+      textMuted: '#9A9A9A',
       accentRed: '#FF3366',
       accentCyan: '#00FFFF',
       accentPurple: '#9933FF',
@@ -87,7 +91,8 @@ export const themes: Theme[] = [
       surface: '#1A1A1A',
       elevated: '#252525',
       text: '#FFFFFF',
-      textSecondary: '#888888',
+      textSecondary: '#B3B3B3',
+      textMuted: '#9A9A9A',
       accentRed: '#FF3366',
       accentCyan: '#00FFFF',
       accentAmber: '#FFAA00',
@@ -103,7 +108,8 @@ export const themes: Theme[] = [
       surface: '#1A1A1A',
       elevated: '#252525',
       text: '#FFFFFF',
-      textSecondary: '#888888',
+      textSecondary: '#B3B3B3',
+      textMuted: '#9A9A9A',
       accentRed: '#FF3366',
       accentCyan: '#00FFFF',
       accentPurple: '#9933FF',
@@ -127,6 +133,7 @@ export function applyTheme(theme: Theme): void {
   root.style.setProperty('--df-elevated', theme.colors.elevated);
   root.style.setProperty('--df-text', theme.colors.text);
   root.style.setProperty('--df-text-secondary', theme.colors.textSecondary);
+  root.style.setProperty('--df-text-muted', theme.colors.textMuted);
   root.style.setProperty('--df-accent-red', theme.colors.accentRed);
   root.style.setProperty('--df-accent-cyan', theme.colors.accentCyan);
   root.style.setProperty('--df-border', theme.colors.border);

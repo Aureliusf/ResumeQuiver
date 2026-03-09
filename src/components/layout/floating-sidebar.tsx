@@ -200,10 +200,14 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
   };
 
   return (
-    <aside className="relative flex flex-col h-full w-full">
+    <aside id="bullet-library-panel" className="relative flex flex-col h-full w-full">
       <button
+        type="button"
         onClick={onToggle}
         className="absolute -right-3 top-6 w-6 h-6 bg-df-elevated border border-df-border rounded-full flex items-center justify-center text-df-text-secondary hover:text-df-text hover:border-df-accent-cyan transition-all z-20"
+        aria-controls="bullet-library-panel"
+        aria-expanded={!collapsed}
+        aria-label={collapsed ? 'Expand bullet library' : 'Collapse bullet library'}
       >
         {collapsed ? (
           <ChevronRight className="w-3 h-3" />
@@ -246,6 +250,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                   </span>
                   <div className={`h-px flex-1 bg-gradient-to-r ${tone.divider} to-transparent`} />
                   <button
+                    type="button"
                     onClick={() => toggleGroup(group.kind)}
                     className={`p-1.5 rounded-lg text-df-text-secondary hover:bg-df-elevated transition-fluid focus:outline-2 focus:outline-offset-2 ${tone.moveAction}`}
                     aria-expanded={!isGroupCollapsed}
@@ -296,12 +301,14 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                             <div className="flex items-start gap-3 flex-1 min-w-0">
                               {isToggleable ? (
                                 <button
+                                  type="button"
                                   onClick={(event) => {
                                     event.stopPropagation();
                                     toggleSectionVisibility(section);
                                   }}
                                   className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid flex-shrink-0"
                                   title={isVisible ? 'Hide from resume' : 'Show in resume'}
+                                  aria-label={`${isVisible ? 'Hide' : 'Show'} ${section.title}`}
                                 >
                                   {isVisible ? (
                                     <Eye className={`w-4 h-4 ${tone.icon}`} />
@@ -337,6 +344,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
 
                             <div className="flex items-center gap-1 flex-shrink-0 ml-3">
                               <button
+                                type="button"
                                 draggable
                                 onDragStart={(event) => startDrag(event, group.kind, section)}
                                 onDragEnd={clearDragState}
@@ -351,9 +359,13 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                               </button>
                               {isExpandable && (
                                 <button
+                                  type="button"
                                   onClick={() => setActiveSection(isExpanded ? null : section.id)}
                                   className="p-1.5 rounded-lg hover:bg-df-elevated-2 transition-fluid"
                                   title={isExpanded ? 'Collapse section' : 'Expand section'}
+                                  aria-expanded={isExpanded}
+                                  aria-controls={`bullet-section-items-${section.id}`}
+                                  aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${section.title}`}
                                 >
                                   <div className="relative w-4 h-4 flex items-center justify-center">
                                     <Plus
@@ -373,10 +385,14 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                           </div>
 
                           {isExpandable && isExpanded && (
-                            <div className="border-t border-df-border p-3 space-y-2">
+                            <div
+                              id={`bullet-section-items-${section.id}`}
+                              className="border-t border-df-border p-3 space-y-2"
+                            >
                               {section.items.map((item) => (
                                 <button
                                   key={item.id}
+                                  type="button"
                                   onClick={() => {
                                     if (section.kind === 'experience' || section.kind === 'project') {
                                       toggleBullet(section.id, item.id);
