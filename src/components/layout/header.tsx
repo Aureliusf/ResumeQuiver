@@ -6,7 +6,9 @@ import {
   Briefcase, 
   ChevronLeft,
   Plus,
-  HelpCircle
+  HelpCircle,
+  Github,
+  Globe
 } from 'lucide-react';
 import { useResume } from '@/contexts/resume-context';
 import { storage } from '@/lib/storage';
@@ -141,6 +143,30 @@ function HeaderComponent({ activeTab, onTabChange, onOpenHelp }: HeaderProps) {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Credits Links */}
+        <div className="flex items-center gap-2 border-l border-df-border pl-6">
+          <a
+            href="https://aurelioflorez.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-2 py-1 text-xs text-df-text-secondary hover:text-df-accent-cyan transition-colors"
+            title="Visit my website"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span className="font-mono hidden sm:inline">aurelioflorez.com</span>
+          </a>
+          <a
+            href="https://github.com/aureliusf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-2 py-1 text-xs text-df-text-secondary hover:text-df-accent-cyan transition-colors"
+            title="View my GitHub"
+          >
+            <Github className="w-3.5 h-3.5" />
+            <span className="font-mono hidden sm:inline">@aureliusf</span>
+          </a>
         </div>
       </div>
 
