@@ -18,6 +18,7 @@ export const educationSchema = z.object({
   location: z.string(),
   degree: z.string(),
   dates: z.string(),
+  bullets: z.array(bulletSchema),
   selected: z.boolean().optional().default(true),
 });
 

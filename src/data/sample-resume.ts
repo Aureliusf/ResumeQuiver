@@ -26,8 +26,25 @@ export const sampleResume: Resume = {
       id: 'edu-001',
       school: 'University of Texas at Austin',
       location: 'Austin, TX',
-      degree: 'B.S. in Computer Science, Minor in Mathematics',
+      degree: "Bachelor's in Computer Science",
       dates: 'Aug. 2015 - May 2019',
+      bullets: [
+        {
+          id: 'edu-b-001',
+          text: 'GPA: 3.8/4.0',
+          selected: true,
+        },
+        {
+          id: 'edu-b-002',
+          text: 'Deans List: All Semesters',
+          selected: true,
+        },
+        {
+          id: 'edu-b-003',
+          text: 'Relevant Coursework: Data Structures & Algorithms, Operating Systems, Computer Architecture',
+          selected: true,
+        },
+      ],
     },
     {
       id: 'edu-002',
@@ -35,6 +52,18 @@ export const sampleResume: Resume = {
       location: 'Atlanta, GA',
       degree: 'M.S. in Computer Science (Online)',
       dates: 'Jan. 2020 - Dec. 2022',
+      bullets: [
+        {
+          id: 'edu-b-004',
+          text: 'Specialization: Machine Learning',
+          selected: true,
+        },
+        {
+          id: 'edu-b-005',
+          text: 'GPA: 3.9/4.0',
+          selected: true,
+        },
+      ],
     },
   ],
 

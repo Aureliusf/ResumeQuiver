@@ -45,6 +45,13 @@ const ResumeContext = createContext<ResumeContextValue | null>(null);
 function collectSelectedBullets(resume: Resume): Map<string, string[]> {
   const bullets = new Map<string, string[]>();
 
+  resume.education.forEach((edu) => {
+    const selectedIds = edu.bullets.filter((b) => b.selected !== false).map((b) => b.id);
+    if (selectedIds.length > 0) {
+      bullets.set(edu.id, selectedIds);
+    }
+  });
+
   resume.experience.forEach((exp) => {
     const selectedIds = exp.bullets.filter((b) => b.selected !== false).map((b) => b.id);
     if (selectedIds.length > 0) {
@@ -65,6 +72,16 @@ function collectSelectedBullets(resume: Resume): Map<string, string[]> {
 function applySelectionMapToResume(resume: Resume, selectedMap: Map<string, string[]>): Resume {
   return {
     ...resume,
+    education: resume.education.map((edu) => {
+      const selectedIds = selectedMap.get(edu.id);
+      return {
+        ...edu,
+        bullets: edu.bullets.map((bullet) => ({
+          ...bullet,
+          selected: selectedIds ? selectedIds.includes(bullet.id) : bullet.selected !== false,
+        })),
+      };
+    }),
     experience: resume.experience.map((exp) => {
       const selectedIds = selectedMap.get(exp.id);
       return {
@@ -149,6 +166,11 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
       const newMap = new Map(prev);
 
       if (!resume) return newMap;
+
+      const edu = resume.education.find((e) => e.id === parentId);
+      if (edu) {
+        newMap.set(parentId, edu.bullets.map((b) => b.id));
+      }
 
       const exp = resume.experience.find((e) => e.id === parentId);
       if (exp) {
@@ -416,6 +438,17 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
 
       const nextResume: Resume = {
         ...prevResume,
+        education: prevResume.education.map((edu) => {
+          if (edu.id !== parentId) return edu;
+          return {
+            ...edu,
+            bullets: edu.bullets.map((bullet) => {
+              if (bullet.id !== bulletId) return bullet;
+              updated = true;
+              return { ...bullet, text: newText };
+            }),
+          };
+        }),
         experience: prevResume.experience.map((exp) => {
           if (exp.id !== parentId) return exp;
           return {

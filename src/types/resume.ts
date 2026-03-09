@@ -17,6 +17,7 @@ export interface Education {
   location: string;
   degree: string;
   dates: string;
+  bullets: Bullet[];
   selected?: boolean;
 }
 

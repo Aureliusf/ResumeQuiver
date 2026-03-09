@@ -46,20 +46,30 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ i
       {visibleEducation.length > 0 && (
         <section className="resume-section">
           <h2 className="resume-section-title">Education</h2>
-          {visibleEducation.map((edu) => (
-            <div key={edu.id} className="resume-education-entry">
-              <div className="resume-row">
-                <span className="resume-row-left">
-                  <span className="resume-school">{edu.school}</span>
-                  <span className="resume-location"> | {edu.location}</span>
-                </span>
+          {visibleEducation.map((edu) => {
+            const selected = getSelectedBullets(edu.id, edu.bullets);
+            return (
+              <div key={edu.id} className="resume-education-entry">
+                <div className="resume-row">
+                  <span className="resume-row-left">
+                    <span className="resume-school">{edu.school}</span>
+                    <span className="resume-location"> | {edu.location}</span>
+                  </span>
+                </div>
+                <div className="resume-row">
+                  <span className="resume-row-left resume-degree">{edu.degree}</span>
+                  <span className="resume-row-right resume-dates">{edu.dates}</span>
+                </div>
+                {selected.length > 0 && (
+                  <ul className="resume-bullets">
+                    {selected.map((bullet) => (
+                      <li key={bullet.id}>{bullet.text}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <div className="resume-row">
-                <span className="resume-row-left resume-degree">{edu.degree}</span>
-                <span className="resume-row-right resume-dates">{edu.dates}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
       )}
 

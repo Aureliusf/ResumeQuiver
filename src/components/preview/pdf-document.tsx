@@ -162,22 +162,35 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
         {visibleEducation.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Education</Text>
-            {visibleEducation.map((edu) => (
-              <View key={edu.id} style={styles.educationEntry}>
-                <View style={styles.row}>
-                  <View style={styles.rowLeft}>
-                    <Text>
-                      <Text style={styles.school}>{edu.school}</Text>
-                      <Text style={styles.location}> | {edu.location}</Text>
-                    </Text>
+            {visibleEducation.map((edu) => {
+              const selected = getSelectedBullets(edu.id, edu.bullets);
+              return (
+                <View key={edu.id} style={styles.educationEntry}>
+                  <View style={styles.row}>
+                    <View style={styles.rowLeft}>
+                      <Text>
+                        <Text style={styles.school}>{edu.school}</Text>
+                        <Text style={styles.location}> | {edu.location}</Text>
+                      </Text>
+                    </View>
                   </View>
+                  <View style={styles.row}>
+                    <Text style={[styles.rowLeft, styles.degree]}>{edu.degree}</Text>
+                    <Text style={[styles.rowRight, styles.dates]}>{edu.dates}</Text>
+                  </View>
+                  {selected.length > 0 && (
+                    <View style={styles.bullets}>
+                      {selected.map((bullet) => (
+                        <View key={bullet.id} style={styles.bulletRow}>
+                          <Text style={styles.bulletBullet}>•</Text>
+                          <Text style={styles.bullet}>{bullet.text}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </View>
-                <View style={styles.row}>
-                  <Text style={[styles.rowLeft, styles.degree]}>{edu.degree}</Text>
-                  <Text style={[styles.rowRight, styles.dates]}>{edu.dates}</Text>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
 

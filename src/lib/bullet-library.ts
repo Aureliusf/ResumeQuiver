@@ -260,22 +260,24 @@ export function buildBulletLibraryGroups(
     });
   }
 
-  const educationSections: BulletLibrarySection[] = resume.education.map((entry) => ({
-    id: entry.id,
-    kind: 'education',
-    moveId: entry.id,
-    toggleId: entry.id,
-    title: entry.school,
-    subtitle: [entry.location, entry.dates].filter(Boolean).join(' • '),
-    items: [
-      {
-        id: `education-item-${entry.id}`,
-        text: entry.degree,
-        selected: entry.selected !== false,
+  const educationSections: BulletLibrarySection[] = resume.education.map((entry) => {
+    const selectedIds = selectedBullets.get(entry.id);
+    return {
+      id: entry.id,
+      kind: 'education',
+      moveId: entry.id,
+      toggleId: entry.id,
+      title: entry.school,
+      subtitle: [entry.location, entry.dates].filter(Boolean).join(' • '),
+      items: entry.bullets.map((bullet) => ({
+        id: bullet.id,
+        text: bullet.text,
+        tags: bullet.tags,
+        selected: selectedIds ? selectedIds.includes(bullet.id) : bullet.selected !== false,
         toggleable: true,
-      },
-    ],
-  }));
+      })),
+    };
+  });
 
   if (educationSections.length > 0) {
     groups.push({
