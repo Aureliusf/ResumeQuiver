@@ -28,7 +28,7 @@ A modern, AI-powered resume builder with YAML editing, AI copywriting assistance
 
 1. Clone the repository:
 ```bash
-git clone <https://github.com/Aureliusf/resumequiver>
+git clone https://github.com/Aureliusf/resumequiver
 cd resume-builder
 ```
 
