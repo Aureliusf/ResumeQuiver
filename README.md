@@ -21,14 +21,14 @@ A modern, AI-powered resume builder with YAML editing, AI copywriting assistance
 ## Setup Instructions
 
 ### Prerequisites
-- Node.js 18+ 
 - npm or yarn
+- Node.js 18+ 
 
 ### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone <https://github.com/Aureliusf/resumequiver>
 cd resume-builder
 ```
 

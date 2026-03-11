@@ -266,7 +266,6 @@ export function buildBulletLibraryGroups(
       id: entry.id,
       kind: 'education',
       moveId: entry.id,
-      toggleId: entry.id,
       title: entry.school,
       subtitle: [entry.location, entry.dates].filter(Boolean).join(' • '),
       items: entry.bullets.map((bullet) => ({

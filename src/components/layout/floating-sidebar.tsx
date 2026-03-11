@@ -162,7 +162,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
   };
 
   const toggleSectionVisibility = (section: BulletLibrarySection) => {
-    if (section.kind === 'experience' || section.kind === 'project') {
+    if (section.kind === 'experience' || section.kind === 'project' || section.kind === 'education') {
       const selectedIds = selectedBullets.get(section.id) || [];
       if (selectedIds.length > 0) {
         deselectAllBullets(section.id);
@@ -172,7 +172,7 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
       return;
     }
 
-    if ((section.kind === 'basics' || section.kind === 'education' || section.kind === 'skills') && section.toggleId !== undefined) {
+    if ((section.kind === 'basics' || section.kind === 'skills') && section.toggleId !== undefined) {
       toggleSectionItem(section.kind, section.toggleId);
     }
   };
@@ -394,12 +394,12 @@ function FloatingSidebarComponent({ collapsed, onToggle }: FloatingSidebarProps)
                                   key={item.id}
                                   type="button"
                                   onClick={() => {
-                                    if (section.kind === 'experience' || section.kind === 'project') {
+                                    if (section.kind === 'experience' || section.kind === 'project' || section.kind === 'education') {
                                       toggleBullet(section.id, item.id);
                                       return;
                                     }
 
-                                    if ((section.kind === 'education' || section.kind === 'skills') && section.toggleId !== undefined) {
+                                    if (section.kind === 'skills' && section.toggleId !== undefined) {
                                       toggleSectionItem(section.kind, section.toggleId);
                                     }
                                   }}

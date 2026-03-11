@@ -94,7 +94,7 @@ interface BulletItemProps {
   parentTitle: string;
   role?: string;
   company?: string;
-  kind: Extract<SectionKind, 'experience' | 'project'>;
+  kind: Extract<SectionKind, 'experience' | 'project' | 'education'>;
   isSelected: boolean;
   onToggle: () => void;
 }
@@ -275,7 +275,7 @@ const SectionCard = memo(function SectionCard({
 }: SectionCardProps) {
   const selectedCount = items.filter((item) => item.selected).length;
   const hasToggleableItems = items.some((item) => item.toggleable);
-  const showBulkActions = (kind === 'experience' || kind === 'project') && items.length > 1;
+  const showBulkActions = (kind === 'experience' || kind === 'project' || kind === 'education') && items.length > 1;
   const showItems = hasToggleableItems || kind !== 'basics';
   const tone = sectionToneStyles[kind];
   const countLabel = hasToggleableItems ? `${selectedCount} / ${items.length}` : 'Visible';
@@ -353,7 +353,7 @@ const SectionCard = memo(function SectionCard({
         <div className="p-3 space-y-1">
           {items.map((item) => (
             <div key={item.id} className="group">
-              {kind === 'experience' || kind === 'project' ? (
+              {kind === 'experience' || kind === 'project' || kind === 'education' ? (
                 parentId ? (
                   <BulletItem
                     bullet={item}
@@ -518,24 +518,24 @@ export const BulletManager = memo(function BulletManager() {
                           title={section.title}
                           subtitle={section.subtitle}
                           items={section.items}
-                          parentId={section.kind === 'experience' || section.kind === 'project' ? section.id : undefined}
+                          parentId={section.kind === 'experience' || section.kind === 'project' || section.kind === 'education' ? section.id : undefined}
                           parentTitle={section.title}
                           role={section.role}
                           company={section.company}
                           onToggleItem={
-                            section.kind === 'experience' || section.kind === 'project'
+                            section.kind === 'experience' || section.kind === 'project' || section.kind === 'education'
                               ? (itemId) => toggleBullet(section.id, itemId)
                               : section.toggleId !== undefined
-                              ? () => toggleSectionItem(section.kind as 'basics' | 'education' | 'skills', section.toggleId as string | number)
+                              ? () => toggleSectionItem(section.kind as 'basics' | 'skills', section.toggleId as string | number)
                               : undefined
                           }
                           onSelectAll={
-                            section.kind === 'experience' || section.kind === 'project'
+                            section.kind === 'experience' || section.kind === 'project' || section.kind === 'education'
                               ? () => selectAllBullets(section.id)
                               : undefined
                           }
                           onDeselectAll={
-                            section.kind === 'experience' || section.kind === 'project'
+                            section.kind === 'experience' || section.kind === 'project' || section.kind === 'education'
                               ? () => deselectAllBullets(section.id)
                               : undefined
                           }
