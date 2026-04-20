@@ -5,7 +5,12 @@ import {
   Text,
   StyleSheet,
 } from '@react-pdf/renderer';
-import { getBasicsFieldEntries, getVisibleEducationEntries, getVisibleSkillCategories } from '@/lib/bullet-library';
+import {
+  getBasicsFieldEntries,
+  getVisibleEducationEntries,
+  getVisibleProjectEntries,
+  getVisibleSkillCategories,
+} from '@/lib/bullet-library';
 import type { Resume } from '@/types/resume';
 import { formatDateRange } from '@/lib/date-utils';
 
@@ -145,6 +150,7 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
   // Build contact line
   const contactItems = getBasicsFieldEntries(resume.basics).map((entry) => entry.value);
   const visibleEducation = getVisibleEducationEntries(resume.education);
+  const visibleProjects = getVisibleProjectEntries(resume.projects);
   const visibleSkills = getVisibleSkillCategories(resume.skills);
 
   return (
@@ -229,10 +235,10 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
         )}
 
         {/* Projects */}
-        {resume.projects.length > 0 && (
+        {visibleProjects.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Projects</Text>
-            {resume.projects.map((proj) => {
+            {visibleProjects.map((proj) => {
               const selected = getSelectedBullets(proj.id, proj.bullets);
               if (selected.length === 0) return null;
 

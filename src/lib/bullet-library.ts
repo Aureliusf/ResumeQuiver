@@ -1,4 +1,4 @@
-import type { Basics, BasicsField, Education, Resume, SkillCategory } from '@/types/resume';
+import type { Basics, BasicsField, Education, Project, Resume, SkillCategory } from '@/types/resume';
 
 export type BulletLibrarySectionKind = 'basics' | 'education' | 'experience' | 'project' | 'skills';
 export type BulletLibraryItemLocator = string | number;
@@ -41,6 +41,7 @@ export interface BulletLibrarySection {
   items: BulletLibraryItem[];
   role?: string;
   company?: string;
+  visible?: boolean;
 }
 
 export interface BulletLibraryGroup {
@@ -225,6 +226,10 @@ export function getVisibleEducationEntries(education: Education[]) {
   return education.filter((entry) => entry.selected !== false);
 }
 
+export function getVisibleProjectEntries(projects: Project[]) {
+  return projects.filter((entry) => entry.selected !== false);
+}
+
 export function getVisibleSkillCategories(skills: SkillCategory[]) {
   return skills.filter((skill) => skill.selected !== false);
 }
@@ -320,8 +325,10 @@ export function buildBulletLibraryGroups(
       id: entry.id,
       kind: 'project',
       moveId: entry.id,
+      toggleId: entry.id,
       title: entry.name,
       subtitle: getProjectSubtitle(entry.technologies, entry.startDate, entry.endDate),
+      visible: entry.selected !== false,
       items: entry.bullets.map((bullet) => ({
         id: bullet.id,
         text: bullet.text,

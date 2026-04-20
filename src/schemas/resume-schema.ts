@@ -42,6 +42,7 @@ export const projectSchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
   url: z.string().optional(),
+  selected: z.boolean().optional().default(true),
 });
 
 // Skill category schema

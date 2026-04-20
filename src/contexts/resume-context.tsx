@@ -12,7 +12,7 @@ import { storage } from '@/lib/storage';
 import { parseYaml, stringifyYaml } from '@/lib/yaml-utils';
 import type { Resume } from '@/types/resume';
 
-type ToggleableSectionKind = 'basics' | 'education' | 'skills';
+type ToggleableSectionKind = 'basics' | 'education' | 'project' | 'skills';
 type MovableSectionKind = 'basics' | ToggleableSectionKind | 'experience' | 'project';
 
 interface ResumeContextState {
@@ -264,6 +264,23 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         };
 
         return commitResumeUpdate(nextResume);
+      }
+
+      if (sectionKind === 'project' && typeof itemId === 'string') {
+        let updated = false;
+        const nextResume: Resume = {
+          ...prevResume,
+          projects: prevResume.projects.map((entry) => {
+            if (entry.id !== itemId) return entry;
+            updated = true;
+            return {
+              ...entry,
+              selected: entry.selected === false,
+            };
+          }),
+        };
+
+        return updated ? commitResumeUpdate(nextResume) : prevResume;
       }
 
       return prevResume;

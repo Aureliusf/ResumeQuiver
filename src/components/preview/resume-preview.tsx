@@ -1,5 +1,10 @@
 import { useResume } from '@/contexts/resume-context';
-import { getBasicsFieldEntries, getVisibleEducationEntries, getVisibleSkillCategories } from '@/lib/bullet-library';
+import {
+  getBasicsFieldEntries,
+  getVisibleEducationEntries,
+  getVisibleProjectEntries,
+  getVisibleSkillCategories,
+} from '@/lib/bullet-library';
 import { formatDateRange } from '@/lib/date-utils';
 import { forwardRef } from 'react';
 import '@/styles/resume.css';
@@ -30,6 +35,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ i
   // Build contact line
   const contactItems = getBasicsFieldEntries(resume.basics).map((entry) => entry.value);
   const visibleEducation = getVisibleEducationEntries(resume.education);
+  const visibleProjects = getVisibleProjectEntries(resume.projects);
   const visibleSkills = getVisibleSkillCategories(resume.skills);
 
   return (
@@ -105,10 +111,10 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ i
       )}
 
       {/* Projects */}
-      {resume.projects.length > 0 && (
+      {visibleProjects.length > 0 && (
         <section className="resume-section">
           <h2 className="resume-section-title">Projects</h2>
-          {resume.projects.map((proj) => {
+          {visibleProjects.map((proj) => {
             const selected = getSelectedBullets(proj.id, proj.bullets);
             if (selected.length === 0) return null;
 

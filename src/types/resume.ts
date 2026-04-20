@@ -39,6 +39,7 @@ export interface Project {
   startDate: string;
   endDate: string;
   url?: string;
+  selected?: boolean;
 }
 
 export interface SkillCategory {
