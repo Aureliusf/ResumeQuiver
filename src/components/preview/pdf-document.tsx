@@ -201,19 +201,18 @@ export function PDFDocument({ resume, selectedBullets }: PDFDocumentProps) {
             {resume.experience.map((exp) => {
               const selected = getSelectedBullets(exp.id, exp.bullets);
               if (selected.length === 0) return null;
+              const experienceMeta = [exp.location, formatDateRange(exp.startDate, exp.endDate)]
+                .filter(Boolean)
+                .join(' | ');
 
               return (
                 <View key={exp.id} style={styles.experienceEntry}>
                   <View style={styles.row}>
                     <Text style={[styles.rowLeft, styles.role]}>{exp.role}</Text>
-                    <Text style={[styles.rowRight, styles.dates]}>
-                      {formatDateRange(exp.startDate, exp.endDate)}
-                    </Text>
+                    <Text style={[styles.rowRight, styles.dates]}>{experienceMeta}</Text>
                   </View>
                   <View style={styles.row}>
-                    <Text style={[styles.rowLeft, styles.company]}>
-                      {exp.company} | {exp.location}
-                    </Text>
+                    <Text style={[styles.rowLeft, styles.company]}>{exp.company}</Text>
                   </View>
                   <View style={styles.bullets}>
                     {selected.map((bullet) => (

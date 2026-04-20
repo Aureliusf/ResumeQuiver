@@ -80,19 +80,18 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ i
           {resume.experience.map((exp) => {
             const selected = getSelectedBullets(exp.id, exp.bullets);
             if (selected.length === 0) return null;
+            const experienceMeta = [exp.location, formatDateRange(exp.startDate, exp.endDate)]
+              .filter(Boolean)
+              .join(' | ');
 
             return (
               <div key={exp.id} className="resume-experience-entry">
                 <div className="resume-row">
                   <span className="resume-row-left resume-role">{exp.role}</span>
-                  <span className="resume-row-right resume-dates">
-                    {formatDateRange(exp.startDate, exp.endDate)}
-                  </span>
+                  <span className="resume-row-right resume-dates">{experienceMeta}</span>
                 </div>
                 <div className="resume-row">
-                  <span className="resume-row-left resume-company">
-                    {exp.company} | {exp.location}
-                  </span>
+                  <span className="resume-row-left resume-company">{exp.company}</span>
                 </div>
                 <ul className="resume-bullets">
                   {selected.map((bullet) => (
