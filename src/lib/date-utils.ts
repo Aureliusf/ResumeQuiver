@@ -55,7 +55,8 @@ function parseDate(dateStr: string): { month: string; year: string } | null {
     
     // Find matching month
     const monthIndex = MONTH_NAMES.findIndex(m => 
-      m.toLowerCase().startsWith(monthAbbr)
+      m.toLowerCase().replace('.', '').startsWith(monthAbbr) ||
+      monthAbbr.startsWith(m.toLowerCase().replace('.', ''))
     );
     
     if (monthIndex !== -1) {

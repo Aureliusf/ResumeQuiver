@@ -25,10 +25,9 @@ export async function scoreBullets(
   signal?: AbortSignal
 ): Promise<void> {
   if (!config.apiKey || !config.baseUrl || !config.model) {
-    const error: AIError = {
-      ...new Error('AI not configured. Please check your settings.'),
-      type: 'invalid-key',
-    };
+    const error = Object.assign(new Error('AI not configured. Please check your settings.'), {
+      type: 'invalid-key' as const,
+    }) as AIError;
     callbacks.onError(error);
     return;
   }
@@ -79,10 +78,9 @@ Important: Return ONLY the JSON array, no markdown, no explanation.`,
       signal
     );
   } catch (error) {
-    const err: AIError = {
-      ...new Error(error instanceof Error ? error.message : 'Unknown error occurred'),
-      type: 'unknown',
-    };
+    const err = Object.assign(new Error(error instanceof Error ? error.message : 'Unknown error occurred'), {
+      type: 'unknown' as const,
+    }) as AIError;
     callbacks.onError(err);
   }
 }
