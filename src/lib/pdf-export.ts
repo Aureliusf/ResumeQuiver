@@ -24,10 +24,11 @@ export function downloadPDF(blob: Blob, filename: string): void {
 
 export function getPDFFilename(resume: Resume): string {
   const name = resume.basics.name
+    .trim()
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
-    .trim();
+    .replace(/^-+|-+$/g, '');
   
   return `${name}-resume.pdf`;
 }
